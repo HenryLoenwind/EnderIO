@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemHoe;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -50,7 +51,8 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
     },
     
     AXE     { boolean match(ItemStack item) { return item.getItem().getHarvestLevel(item, "axe") >= 0;         }},
-    TREETAP { boolean match(ItemStack item) { return item.getItem().getClass() == RubberTreeFarmerIC2.treeTap;}};
+    TREETAP { boolean match(ItemStack item) { return item.getItem().getClass() == RubberTreeFarmerIC2.treeTap; }},
+    SHEARS  { boolean match(ItemStack item) { return item.getItem() instanceof ItemShears; }};
     
     public final boolean itemMatches(ItemStack item) {
       if (item == null) {
@@ -86,7 +88,7 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
   private int farmSize = Config.farmDefaultSize;
 
   private int minToolSlot = 0;
-  private int maxToolSlot = 1;
+  private int maxToolSlot = 2;
 
   int minSupSlot = maxToolSlot + 1;
   int maxSupSlot = minSupSlot + 4;
@@ -103,7 +105,7 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
   public boolean sendNotification = false;
 
   public TileFarmStation() {
-    super(new SlotDefinition(6, 4, 1));
+    super(new SlotDefinition(7, 4, 1));
     setCapacitor(Capacitors.BASIC_CAPACITOR);    
   }
 
@@ -170,6 +172,10 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
     return hasTool(ToolType.AXE);
   }
 
+  public boolean hasShears() {
+    return hasTool(ToolType.SHEARS);
+  }
+
   public int getAxeLootingValue() {
     ItemStack tool = getTool(ToolType.AXE);
     if(tool == null) {
@@ -184,6 +190,10 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
 
   public void damageHoe(int i, BlockCoord bc) {
     damageTool(ToolType.HOE, null, bc, i);
+  }
+
+  public void damageShears(Block blk, BlockCoord bc) {
+    damageTool(ToolType.SHEARS, blk, bc, 1);
   }
 
   public boolean hasTool(ToolType type){
@@ -430,6 +440,12 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
     return false;
   }
 
+  public boolean needSeeds(BlockCoord bc) {
+    int slot = getSupplySlotForCoord(bc);
+    ItemStack inv = inventory[slot];
+    return (inv == null || (inv.stackSize < 8));
+  }
+
   public ItemStack takeSeedFromSupplies(ItemStack stack, BlockCoord forBlock) {
     return takeSeedFromSupplies(stack, forBlock, true);
   }
@@ -638,6 +654,13 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
     for (int i : nbtRoot.getIntArray("lockedSlots")) {
       lockedSlots.add(i);
     }
+    int slotLayoutVersion = nbtRoot.getInteger("slotLayoutVersion");
+    if (slotLayoutVersion < 1) {
+      for (int i = 9; i >= 2; i--) {
+        inventory[i+1] = inventory[i];
+      }
+      inventory[2] = null;
+    }
   }
   
   IPoweredTask createTask() {
@@ -653,6 +676,7 @@ public class TileFarmStation extends AbstractPoweredTaskEntity {
       locked[i] = lockedSlots.get(i);
     }
     nbtRoot.setIntArray("lockedSlots", locked);
+    nbtRoot.setInteger("slotLayoutVersion", 1);
   }
 
 }
