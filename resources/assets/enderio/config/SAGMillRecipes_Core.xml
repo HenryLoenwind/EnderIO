@@ -245,6 +245,15 @@ addOreDictionaryTooltips=true
       </output>
     </recipe>
 
+    <recipe name="SharpBlade" energyCost="4200">
+      <input>
+        <itemStack modID="EnderIO" itemName="itemGliderWing" itemMeta="2" />
+      </input>
+      <output>
+        <itemStack modID="EnderIO" itemName="itemGliderWing" number="3" itemMeta="3" />
+      </output>
+    </recipe>
+
   </recipeGroup>
 
   <recipeGroup name="Vanilla">

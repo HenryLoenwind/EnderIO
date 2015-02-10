@@ -23,56 +23,63 @@ import net.minecraft.util.MathHelper;
 
 public class ItemGliderWing extends Item implements IResourceTooltipProvider {
 
-  private static final BasicCapacitor CAP = new BasicCapacitor();
-
+  private static final int SUBITEMS = 4;
+  private static final IIcon[] ICONS = new IIcon[SUBITEMS];
+  private static final String[] ICONNAMES = {
+    "enderio:itemGliderWing",
+    "enderio:itemGliderWings",
+    "enderio:itemCrudeBlade",
+    "enderio:itemSharpBlade"
+  };
+  private static final String[] UNLOCNAMES = {
+    ModObject.itemGliderWing.unlocalisedName, 
+    ModObject.itemGliderWings.unlocalisedName,
+    ModObject.itemCrudeBlade.unlocalisedName,
+    ModObject.itemSharpBlade.unlocalisedName
+  };
+  
   public static ItemGliderWing create() {
     ItemGliderWing result = new ItemGliderWing();
     result.init();
     return result;
   }
 
-  private IIcon wingsIcon;
-
   protected ItemGliderWing() {
     setCreativeTab(EnderIOTab.tabEnderIO);
-    setUnlocalizedName(ModObject.itemGliderWing.unlocalisedName);
+    setUnlocalizedName(UNLOCNAMES[0]);
     setHasSubtypes(true);
     setMaxDamage(0);
     setMaxStackSize(64);
   }
 
   protected void init() {
-    GameRegistry.registerItem(this, ModObject.itemGliderWing.unlocalisedName);
+    GameRegistry.registerItem(this, UNLOCNAMES[0]);
   }
 
   @Override
   public IIcon getIconFromDamage(int damage) {
-    damage = MathHelper.clamp_int(damage, 0, 1);
-    if(damage == 0) {
-      return itemIcon;
-    }
-    return wingsIcon;
+    damage = MathHelper.clamp_int(damage, 0, 3);
+    return ICONS[damage];
   }
 
   @Override
   public void registerIcons(IIconRegister register) {
-    itemIcon = register.registerIcon("enderio:itemGliderWing");
-    wingsIcon = register.registerIcon("enderio:itemGliderWings");
+    for (int i = 0; i < SUBITEMS; i++) {
+      ICONS[i] = register.registerIcon(ICONNAMES[i]);
+    }
+    itemIcon = ICONS[0];
   }
 
   @Override
   public String getUnlocalizedName(ItemStack par1ItemStack) {
-    int i = MathHelper.clamp_int(par1ItemStack.getItemDamage(), 0, Capacitors.values().length - 1);
-    if(i == 0) {
-      return super.getUnlocalizedName();
-    }
-    return super.getUnlocalizedName() + "s";
+    int damage = MathHelper.clamp_int(par1ItemStack.getItemDamage(), 0, 3);
+    return "item." + UNLOCNAMES[damage];
   }
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List) {
-    for (int j = 0; j < 2; ++j) {
+    for (int j = 0; j < SUBITEMS; ++j) {
       par3List.add(new ItemStack(par1, 1, j));
     }
   }
@@ -83,13 +90,4 @@ public class ItemGliderWing extends Item implements IResourceTooltipProvider {
   }
 
  
-//  @Override
-//  @SideOnly(Side.CLIENT)
-//  public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4) {
-//    if(par1ItemStack != null && par1ItemStack.getItemDamage() > 0) {
-//      par3List.add(Lang.localize("machine.tooltip.upgrade"));
-//    }
-//
-//  }
-  
 }
