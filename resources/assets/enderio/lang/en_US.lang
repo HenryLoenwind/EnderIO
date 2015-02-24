@@ -988,3 +988,96 @@ enderio.tooltip.meta=Meta:
 enderio.tooltip.uid=UID:
 enderio.tooltip.anvilupgrades=Anvil Upgrades:
 enderio.waila.config.hiddenfacades=Sneaky Facades
+
+// Extra Utilities-compatible documentation
+
+// Conduits
+enderio.itemGasConduit.documentation=Gas conduits can be used to transfer Mekanism-compatible gases. Otherwise they are of limited use as other mods implement their gases as fluids. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench. Several filters and speed upgrades are available for them.
+enderio.itemItemConduit.documentation=Item conduits can be used to transfer items between blocks that have inventories, like machines and chests. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench. Several filters and speed upgrades are available for them.
+enderio.itemLiquidConduit.documentation=Fluid conduits can be used to transfer (Forge compatible) liquids between blocks with tanks. These lowest tier conduits are limited by gravity and the fluids' viscosity. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemLiquidConduitAdvanced.documentation=Pressurized fluid conduits can be used to transfer (Forge compatible) liquids between blocks with tanks. These second tier conduits are not limited by gravity and can transport fluids quite quickly. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemLiquidConduitEnder.documentation=Ender fluid conduits can be used to transfer (Forge compatible) liquids between blocks with tanks. These top tier conduits teleport the fluids instantly to their destination. This enables them to transport any number of different fluids at the same time. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemMEConduit.documentation=ME conduits can be used to transport 8 channels of Applied Energistics data and power. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemMEConduitDense.documentation=Dense ME conduits can be used to transport 32 channels of Applied Energistics data and power. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemPowerConduit.documentation=Energy conduits can be used to transport power in the form of RF between machines. These lowest tier conduits are a bit limited in their capacity, but should suffice for most machines. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemPowerConduitEnder.documentation=Ender energy conduits can be used to transport power in the form of RF between machines. These top tier conduits can transport such vast amounts of power that only the most demanding machines will need more than one connection. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemPowerConduitEnhanced.documentation=Enhanced energy conduits can be used to transport power in the form of RF between machines. These second tier conduits can transport a good amount of power. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemRedstoneConduit.documentation=Redstone conduits can be used to transport a redstone signal. They act just like redstone dust, but without the power loss. They cannot be configured, as the missing insulation means they will always connect on all sides. When connected to an insulated redstone conduit, they will pick up signals from all its channels.
+enderio.itemRedstoneConduitInsulated.documentation=Insulated redstone conduits can be used to transport redstone signals on 16 color-coded channels. Unlike their uninsulated bretheren they can be configured to connect to any block. As they don't connect to blocks that are known to redstone-enabled, you will have to manually connect them most of the time. Other conduits in the same block act on their signals without an additional connection. They can be configured by right-clicking their connection plate, or by shift left-clicking their central nodes with a YETA wrench.
+enderio.itemRedstoneConduitSwitch.documentation=Conduit switches are simple on/off switches that can be added to any conduit bundle containing redstone conduit.
+
+// Conduit related
+item.enderio.itemConduitFacade.documentation=Conduit facades can be used to hide cunduit bundles. Paint them to look like (almost) any block in the painting machine, then place them over a conduit. They become invisible when you are holding a wrench or any type of conduit in your hand.
+item.enderio.itemConduitProbe.documentation.0=The conduit probe can be used to probe network details or to copy&paste conduit settings. Switch between the modes with shift-mouse wheel or the configured key ('Y' by default).
+item.enderio.itemConduitProbe.documentation.1=In probe mode: Right-click on a conduit do see details about the network.
+item.enderio.itemConduitProbe.documentation.2=In copy&paste mode: Shift-right-click a connection to copy its settings. Right-click another connection to paste them. 
+
+
+// Misc Blocks
+tile.blockEndermanSkull.base.documentation=Removing an Enderman's head from its body is quite a feat. Using an empowered "The Ender" sword would be very helpful.
+tile.blockEndermanSkull.tormented.documentation=Creating a tormented Enderman head might seem cruel, but remember: The Enderman is already dead. And maybe this will serve as an example for other monsters and keep them away from you...
+tile.blockReinforcedObsidian.documentation=Reinforced obsidian is not only blast proof, it even is wither proof.
+enderio.blockFusedQuartz.fusedQuartz.documentation=Fused quartz is stronger and more scratch resistant than simple glas. Fingerprints can easily wiped off it with a soft cloth. That makes it the ideal material for all types of liquid storage and transport.
+enderio.blockFusedQuartz.enlightenedFusedGlass.documentation=Enlightened clear glass gives off light. It also forms a connected texture with quite clear glass. 
+enderio.blockFusedQuartz.enlightenedFusedQuartz.documentation=Enlightened fused quartz gives off light. It also forms a connected texture with fused quartz.
+enderio.blockFusedQuartz.fusedGlass.documentation=This quite clear glass is quite clear. It can be used to make fluid conduits, or it can be converted into normal glass in the workbench.
+
+
+
+// Misc Items
+item.itemBrokenSpawner.documentation=This spawner is broken but not beyond repair. Combine it with a powered spawner in an anvil to do so. You can also change the type of creature this spawner can spawn by combining it with a creature's soul in a soul binder. But do so before reparing it.
+item.itemSoulVessel.documentation=A soul vial can be used to capture a creature's soul and body. Right-click a creature with an empty soul vial to capture it. Right-click a filled vial to release its content.
+
+// Capacitors
+enderio.basicCapacitor.documentation=The basic capacitor is the most fundamental building block of Ender IO's machinery. It allows all those machines it is used in to store energy. However, there are better capacitors and they can be used to upgrade most machines.
+enderio.activatedCapacitor.documentation=The double-layer capacitor is the first step up from the basic capacitor. It can be used to upgrade most machines in the field.
+enderio.enderCapacitor.documentation=The octadic capacitor is the final word on capacitors. It can be used to upgrade most machines in the field to their full potential.
+
+
+// Fluids
+tile.fluid.fire_water.documentation=I wouldn't drink this fire water; it's better suited to burn in the combustion generator.
+tile.fluid.hootch.documentation=This Hootch is strong enough to burn your throat away. Luckily the combustion generator is more sturdy and can convert it to energy easily.
+tile.fluid.nutrient_distillation.documentation.0=Nutrient distillation can be used to make chefs cry. And feed zombie heads if you put them into an oversized jar.
+tile.fluid.nutrient_distillation.documentation.1=Disclaimer: Chefs are not included with Ender IO.
+tile.fluid.rocket_fuel.documentation=Our extra strong rocket fuel is the reason the combustion generator is build from reinforced parts.
+tile.fluid.eio.xpjuice.documentation=Liquid XP can be pumped around between all Ender IO machines that work with XP. Sadly, that means there are no XP conduits.
+
+// Fluid Buckets
+item.bucketFire_water.documentation=Even if it wasn't in a bucket I wouldn't drink this fire water; it's better suited to burn in the combustion generator.
+item.bucketHootch.documentation=This Hootch is strong enough to burn your throat away. Luckily both this bucket and the combustion generator are more sturdy. The later can even convert it to energy!
+item.bucketNutrient_distillation.documentation.0=Nutrient distillation can be used to feed zombie heads if you put them into an oversized jar.
+item.bucketNutrient_distillation.documentation.1=Note: Don't put the bucket into the jar with the zombie head. They tend to gnaw.
+item.bucketRocket_fuel.documentation=Our extra strong rocket fuel is the reason the combustion generator is build from reinforced parts. But don't fear for your bucket; it has an invisible lid that keeps the fuel from igniting.
+item.bucketXpjuice.documentation=Putting XP in a bucket? Really? That's just wrong...
+
+// Dark Steel Blocks
+tile.blockDarkIronBars.documentation=Dark iron bars are stronger than normal iron bars. This makes them blast resistant.
+tile.blockDarkSteelLadder.documentation=Dark steel ladders are stronger than normal ladders. This allows you to move faster on them.
+
+// Dark Steel Tools
+item.darkSteel_pickaxe.documentation=Picks made from dark steel are more sturdy as picks made from normal iron. They are comparable to diamond picks, but can take magic a good deal better. They can be empowered by adding a vibrant crystal in an anvil. Empowered picks can be charged with RF power. Using their charge, they take less damage, mine faster and mine obsidian much faster. Adding capacitors will increase their internal energy storage. Right-clicking with a dark pick will try to place/use the next item on your hotbar.
+item.darkSteel_axe.documentation=Axes made from dark steel are more sturdy as axes made from normal iron. They are comparable to diamond picks, but can take magic a good deal better. They can be empowered by adding a vibrant crystal in an anvil. Empowered axes can be charged with RF power. Using their charge, they take less damage, work faster and can fell big trees in one sweep (hold shift to do so). Adding capacitors will increase their internal energy storage. Right-clicking with a dark axe will try to place/use the next item on your hotbar.
+
+// Dark Steel Weapons
+item.darkSteel_sword.documentation="The Ender" is a sword made out of dark steel. On its own it is not very remarkable, but once it is empowered it becomes strong. It can be empowered by adding a vibrant crystal in an anvil. Using its charge, it takes less damage, does more damage, prevents Endermen and -minis from teleporting, and increased the drop chances of ender pearls and Enderman heads. Adding capacitors will increase its internal energy storage.
+
+// Dark Steel Armor
+
+// Machines
+tile.blockPainter.documentation.0=The painting machine can be used to "paint" blocks to look like other blocks. It requires some power (RF) and a single block as a model.
+tile.blockPainter.documentation.1=It can paint: Conduit Facades, Stairs, Fences, Gates, Slabs, Cobblestone Walls, Glass Frames, Glowstone Blocks, Carpets, Dark Steel Pressure Plates, and Travel Anchors
+tile.blockPainter.documentation.2=This machine can be upgraded with a double-layer or an octadic capacitor to increase its working speed and the size of its internal energy buffer. The upgrade can be removed at any time.
+
+// Alloys
+
+// Alloy Blocks
+tile.enderio.electricalSteel.documentation=An electrical steel block is a block made of electrical steel. Sounds funny, bit it's the truth. Honestly! (It also can be used as a beacon base.)
+tile.enderio.energeticAlloy.documentation=The energetic alloy block will not turn blue on extended storage. But why would you want to store it? You could set up a beacon base with it instead.
+tile.enderio.phasedGold.documentation=We are sorry to inform you that the vibrant alloy block will not vibrate. Not even when used as a beacon base.
+tile.enderio.redstoneAlloy.documentation=The redstone alloy block will not emit a redstone signal. But it is not useless, it can be used as a beacon base instead.
+tile.enderio.conductiveIron.documentation=The conductive iron block is not here to conduct any experiments with. Unless you want to experiment with beacons, then you can use it as a base.
+tile.enderio.phasedIron.documentation=Did you know that the pulsating iron block was originally called "phased iron block"? No matter its name, it can be used as a beacon block.
+tile.enderio.darkSteel.documentation=The dark steel block is no steal, but it makes an elegant beacon base.
+tile.enderio.soularium.documentation=What do you think, are there still souls in the soularium block? And if yes, would they mind being used as beacon base?
+
+
