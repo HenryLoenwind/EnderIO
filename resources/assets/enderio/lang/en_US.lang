@@ -1037,15 +1037,19 @@ enderio.enderCapacitor.documentation=The octadic capacitor is the final word on 
 // Fluids
 tile.fluid.fire_water.documentation=I wouldn't drink this fire water; it's better suited to burn in the combustion generator.
 tile.fluid.hootch.documentation=This Hootch is strong enough to burn your throat away. Luckily the combustion generator is more sturdy and can convert it to energy easily.
-tile.fluid.nutrient_distillation.documentation.0=Nutrient distillation can be used to make chefs cry. And feed zombie heads if you put them into an oversized jar.
+tile.fluid.nutrient_distillation.documentation.0=Nutrient distillation can be used to make chefs cry. Or you could use it to feed zombie heads, if you put them into an oversized jar.
 tile.fluid.nutrient_distillation.documentation.1=Disclaimer: Chefs are not included with Ender IO.
+// <Karmacopper> If you want to get ahead, get a hat. If you want to feed a head, get Nutrient Distillation!
+// <adamvan2k> Nutrient Distillation: What do you THINK is in it?
+// <Xaw4> "Turns a Zombie head into a Hamster in a wheel. Human application is not advised. "
+// <Karmacopper> Nutrient Disstilation: It's food Jim, but not as we know it!
 tile.fluid.rocket_fuel.documentation=Our extra strong rocket fuel is the reason the combustion generator is build from reinforced parts.
 tile.fluid.eio.xpjuice.documentation=Liquid XP can be pumped around between all Ender IO machines that work with XP. Sadly, that means there are no XP conduits.
 
 // Fluid Buckets
 item.bucketFire_water.documentation=Even if it wasn't in a bucket I wouldn't drink this fire water; it's better suited to burn in the combustion generator.
 item.bucketHootch.documentation=This Hootch is strong enough to burn your throat away. Luckily both this bucket and the combustion generator are more sturdy. The later can even convert it to energy!
-item.bucketNutrient_distillation.documentation.0=Nutrient distillation can be used to feed zombie heads if you put them into an oversized jar.
+item.bucketNutrient_distillation.documentation.0=Nutrient distillation---it's not soylent green, but it is food. Barely. It's better used to feed zombie heads in jars.
 item.bucketNutrient_distillation.documentation.1=Note: Don't put the bucket into the jar with the zombie head. They tend to gnaw.
 item.bucketRocket_fuel.documentation=Our extra strong rocket fuel is the reason the combustion generator is build from reinforced parts. But don't fear for your bucket; it has an invisible lid that keeps the fuel from igniting.
 item.bucketXpjuice.documentation=Putting XP in a bucket? Really? That's just wrong...
