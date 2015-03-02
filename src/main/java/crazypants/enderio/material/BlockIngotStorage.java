@@ -70,6 +70,16 @@ public class BlockIngotStorage extends BlockEio implements IAdvancedTooltipProvi
   public float getBlockHardness(World world, int x, int y, int z) {
     return Alloy.values()[world.getBlockMetadata(x, y, z)].getHardness();
   }
+
+  @Override
+  public boolean canProvidePower() {
+      return true;
+  }
+
+  @Override
+  public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int p_149709_5_) {
+      return Alloy.values()[world.getBlockMetadata(x, y, z)].redStonePowerLevel;
+  }
   
   @Override
   public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
