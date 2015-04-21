@@ -139,14 +139,14 @@ public class GuiVat extends GuiPoweredMachineBase<TileVat> {
       float mult;
       ItemStack inStack = vat.getStackInSlot(0);
       if(inStack != null) {
-        mult = VatRecipeManager.instance.getMultiplierForInput(inStack, outputFluid);
+        mult = VatRecipeManager.instance.getMultiplierForInput(inStack, outputFluid, 0);
         String str = "x" + mult;
         x = guiLeft + 63 - fontRendererObj.getStringWidth(str) / 2;
         fontRendererObj.drawString(str, x, guiTop + 32, ColorUtil.getRGB(Color.gray), false);
       }
       inStack = vat.getStackInSlot(1);
       if(inStack != null) {
-        mult = VatRecipeManager.instance.getMultiplierForInput(inStack, outputFluid);
+        mult = VatRecipeManager.instance.getMultiplierForInput(inStack, outputFluid, 1);
         String str = "x" + mult;
         x = guiLeft + 113 - fontRendererObj.getStringWidth(str) / 2;
         fontRendererObj.drawString(str, x, guiTop + 32, ColorUtil.getRGB(Color.gray), false);

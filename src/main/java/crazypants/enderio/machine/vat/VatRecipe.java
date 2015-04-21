@@ -141,26 +141,48 @@ public class VatRecipe implements IRecipe {
     return Collections.singletonList(inputFluidStack);
   }
 
-  public float getMultiplierForInput(FluidStack item) {
+  public float getMultiplierForInput(FluidStack item, int slotNumber) {
     for (RecipeInput input : inputs) {
-      if(input.isInput(item)) {
+      if(input.isInput(item) && input.getSlotNumber() == slotNumber) {
         return input.getMulitplier();
       }
     }
     return 1;
   }
 
-  public FluidStack getRequiredFluidInput(MachineRecipeInput[] inputs) {
-    float inputFluidMul = 1;
-    float outputFluidMul = 1;
-    FluidStack inputFluidStack = null;
-    for (MachineRecipeInput ri : inputs) {
-      if(!ri.isFluid()) {
-        inputFluidMul *= getMultiplierForInput(ri.item);
+  public FluidStack getRequiredFluidInput(MachineRecipeInput... inputs) {
+    if(!isValid() || inputs == null || inputs.length < 2) {
+      return null;
+    }
+
+    MachineRecipeInput fluidInput = null;
+    MachineRecipeInput input1 = null;
+    MachineRecipeInput input2 = null;
+
+    for (MachineRecipeInput in : inputs) {
+      if(in.isFluid()) {
+        fluidInput = in;
       } else {
-        inputFluidStack = ri.fluid.copy();
+        if(isValidInput(in.slotNumber, in.item)) {
+          if (in.slotNumber == 0) {
+            input1 = in;
+          } else {
+            input2 = in;
+          }
+        }
       }
     }
+
+    if (fluidInput == null || input1 == null || ((requiredItems == 3) && input2 == null)) {
+      return null;
+    }
+
+    FluidStack inputFluidStack = fluidInput.fluid.copy();
+    float inputFluidMul = getMultiplierForInput(input1.item);
+    if (input2 != null) {
+        inputFluidMul *= getMultiplierForInput(input2.item);
+    }
+
     inputFluidStack.amount = Math.round(inputFluidMul * FluidContainerRegistry.BUCKET_VOLUME);
     return inputFluidStack;
   }
@@ -170,7 +192,7 @@ public class VatRecipe implements IRecipe {
     float outMul = 1;
     for (MachineRecipeInput ri : inputs) {
       outMul *= getMultiplierForInput(ri.item);
-      outMul *= getMultiplierForInput(ri.fluid);
+      outMul *= getMultiplierForInput(ri.fluid, ri.slotNumber);
     }
     outFluid.amount = Math.round(outMul * FluidContainerRegistry.BUCKET_VOLUME);
     return outFluid;

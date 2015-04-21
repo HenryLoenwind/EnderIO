@@ -125,12 +125,12 @@ public class VatRecipeManager {
     return false;
   }
   
-  public float getMultiplierForInput(ItemStack input, Fluid output) {
+  public float getMultiplierForInput(ItemStack input, Fluid output, int slotNumber) {
     for (IRecipe recipe : recipes) {
       RecipeOutput out = recipe.getOutputs()[0];
       if(out.getFluidOutput().getFluid().getID() == output.getID()) {
         for(RecipeInput ri : recipe.getInputs()) {
-          if(ri.isInput(input)) {
+          if(ri.isInput(input) && ri.getSlotNumber() == slotNumber) {
             return ri.getMulitplier();
           }
         }
