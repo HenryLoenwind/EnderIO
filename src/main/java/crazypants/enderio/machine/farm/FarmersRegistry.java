@@ -15,6 +15,7 @@ public final class FarmersRegistry {
   
   public static void addFarmers() {
 
+    addAgricraft();
     addExtraUtilities();
     addNatura();
     addTiC();
@@ -24,17 +25,24 @@ public final class FarmersRegistry {
     addThaumcraft();
     addFlowers();
 
-    FarmersCommune.joinCommune(new StemFarmer(Blocks.reeds, new ItemStack(Items.reeds)));
-    FarmersCommune.joinCommune(new StemFarmer(Blocks.cactus, new ItemStack(Blocks.cactus)));
+    if (canBePlantedNormally(new ItemStack(Items.reeds)))
+      FarmersCommune.joinCommune(new StemFarmer(Blocks.reeds, new ItemStack(Items.reeds)));
+    if (canBePlantedNormally(new ItemStack(Blocks.cactus)))
+      FarmersCommune.joinCommune(new StemFarmer(Blocks.cactus, new ItemStack(Blocks.cactus)));
     FarmersCommune.joinCommune(new TreeFarmer(Blocks.sapling, Blocks.log));
     FarmersCommune.joinCommune(new TreeFarmer(Blocks.sapling, Blocks.log2));
-    FarmersCommune.joinCommune(new TreeFarmer(true,Blocks.red_mushroom, Blocks.red_mushroom_block));
-    FarmersCommune.joinCommune(new TreeFarmer(true,Blocks.brown_mushroom, Blocks.brown_mushroom_block));
+    if (canBePlantedNormally(new ItemStack(Blocks.red_mushroom)))
+      FarmersCommune.joinCommune(new TreeFarmer(true, Blocks.red_mushroom, Blocks.red_mushroom_block));
+    if (canBePlantedNormally(new ItemStack(Blocks.brown_mushroom)))
+      FarmersCommune.joinCommune(new TreeFarmer(true, Blocks.brown_mushroom, Blocks.brown_mushroom_block));
     //special case of plantables to get spacing correct
-    FarmersCommune.joinCommune(new MelonFarmer(Blocks.melon_stem, Blocks.melon_block, new ItemStack(Items.melon_seeds)));
-    FarmersCommune.joinCommune(new MelonFarmer(Blocks.pumpkin_stem, Blocks.pumpkin, new ItemStack(Items.pumpkin_seeds)));
+    if (canBePlantedNormally(new ItemStack(Items.melon_seeds)))
+      FarmersCommune.joinCommune(new MelonFarmer(Blocks.melon_stem, Blocks.melon_block, new ItemStack(Items.melon_seeds)));
+    if (canBePlantedNormally(new ItemStack(Items.pumpkin_seeds)))
+      FarmersCommune.joinCommune(new MelonFarmer(Blocks.pumpkin_stem, Blocks.pumpkin, new ItemStack(Items.pumpkin_seeds)));
     //'BlockNetherWart' is not an IGrowable
-    FarmersCommune.joinCommune(new NetherWartFarmer());
+    if (canBePlantedNormally(new ItemStack(Blocks.nether_wart)))
+      FarmersCommune.joinCommune(new NetherWartFarmer());
     //Cocoa is odd
     FarmersCommune.joinCommune(new CocoaFarmer());
     //Handles all 'vanilla' style crops
@@ -202,6 +210,19 @@ public final class FarmersRegistry {
         GameRegistry.findBlock("Botania", "flower") ) );
   }
   
+  private static AgricraftFarmer af;
+
+  private static void addAgricraft() {
+    af = new AgricraftFarmer();
+    if (af.init()) {
+      FarmersCommune.joinCommune(af);
+    }
+  }
+
+  private static boolean canBePlantedNormally(ItemStack stack) {
+    return af == null || af.canBePlantedNormally(stack);
+  }
+
   private FarmersRegistry() {
   }
 
