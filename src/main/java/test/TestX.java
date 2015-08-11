@@ -24,6 +24,16 @@ public class TestX {
   }
 
   private void run() throws IOException {
+    XStream xstream = makeXStream();
+    
+    // Config cfg = new Config();
+    // cfg.config = (Water) readConfig(xstream, "test.xml");
+    // cfg.compute();
+
+    go(xstream);
+  }
+
+  private XStream makeXStream() {
     XStream xstream = new XStream();
     if (this.getClass().getClassLoader() != null) {
       xstream.setClassLoader(this.getClass().getClassLoader());
@@ -42,17 +52,18 @@ public class TestX {
     xstream.useAttributeFor(Component.class, "name");
     xstream.useAttributeFor(Component.class, "factor");
     xstream.useAttributeFor(Component.class, "count");
+    xstream.useAttributeFor(MinecraftItem.class, "modID");
+    xstream.useAttributeFor(MinecraftItem.class, "itemName");
+    xstream.useAttributeFor(MinecraftItem.class, "itemMeta");
+    xstream.useAttributeFor(OreDictionaryItem.class, "oreDictionary");
+    xstream.alias("water", Water.class);
+    xstream.alias("material", Material.class);
+    xstream.alias("component", Component.class);
 
     ClassAliasingMapper mapper = new ClassAliasingMapper(xstream.getMapper());  
-    mapper.addClassAlias("granularity", Double.class);
-    xstream.registerLocalConverter(
-        Component.class,
-        "granularities",
-        new CollectionConverter(mapper)
-    );
-    
-    //readConfig(xstream, "test.xml");
-    go(xstream);
+    mapper.addClassAlias("amount", Double.class);
+    xstream.registerLocalConverter(Component.class, "granularities", new CollectionConverter(mapper));
+    return xstream;
   }
 
   private Object readConfig(XStream xstream, String fileName) throws IOException {
@@ -89,9 +100,9 @@ public class TestX {
     
     Material m = new Material();
     m.name = "Aluminium";
-    m.result = new Item();
-    m.result.name = "blockAluminium";
-    m.result.damage = 0;
+    OreDictionaryItem i = new OreDictionaryItem();
+    i.oreDictionary = "blockAluminium";
+    m.item = i;
     m.prio = 1;
     m.volume = 1000000.0;
     wc.materials.add(m);
@@ -113,9 +124,11 @@ public class TestX {
     
     m = new Material();
     m.name = "Salt";
-    m.result = new Item();
-    m.result.name = "blockSalt";
-    m.result.damage = 0;
+    MinecraftItem mi = new MinecraftItem();
+    m.item = mi;
+    mi.modID = "havestcraft";
+    mi.itemName = "foodSalt";
+    mi.itemMeta = 0;
     m.prio = 1;
     m.volume = 1000000.0;
     wc.materials.add(m);
@@ -156,7 +169,7 @@ public class TestX {
     BufferedWriter writer = null;
     try {
       writer = new BufferedWriter(new FileWriter(configFile, false));
-      xstream.toXML(/*wc*/cfg, writer);
+      xstream.toXML(/* wc */cfg.config, writer);
     } finally {
       IOUtils.closeQuietly(writer);
     }

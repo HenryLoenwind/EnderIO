@@ -26,7 +26,7 @@ public class Config {
     Collections.sort(mats.materials);
     
     for (Material mat : mats.materials) {
-      if (testing || mat.result.getItemStack() != null) {
+      if (testing || mat.item.getItemStack() != null) {
         boolean good2go = true;
         for (Component comp : mat.components) {
           Double available = remains.contents.get(comp.name);

@@ -2,12 +2,8 @@ package test;
 
 import net.minecraft.item.ItemStack;
 
-public class Item {
-  String mod;
-  String name;
-  int damage;
-  
-  public ItemStack getItemStack() {
-    return null;
-  }
+public interface Item {
+
+  public abstract ItemStack getItemStack();
+
 }
