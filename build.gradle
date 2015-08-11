@@ -60,6 +60,8 @@ dependencies {
     // WAILA ships really old CCC/CCL versions, so we force the new versions
     compile "codechicken:CodeChickenLib:${minecraft_version}-${ccl_version}:dev"
     compile "codechicken:CodeChickenCore:${minecraft_version}-${ccc_version}:dev"    
+    
+    exportedCompile "com.thoughtworks.xstream:xstream:1.4.8"
 }
 
 sourceSets {
