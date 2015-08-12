@@ -7,36 +7,12 @@
   <materials>
     <material name="Aluminium" prio="1" volume="1000000.0" density="2.7">
       <item class="OreDictionaryItem" oreDictionary="blockAluminium"/>
-      <component name="Aluminium" factor="1.0" count="1">
-        <granularities>
-          <amount>1.0</amount>
-          <amount>1.0</amount>
-          <amount>1.0</amount>
-          <amount>1.0</amount>
-          <amount>1.0</amount>
-        </granularities>
-      </component>
+      <component name="Aluminium" granularity="1.0" factor="1.0" count="1"/>
     </material>
     <material name="Salt" prio="1" volume="1000000.0" density="2.165">
-      <item class="MinecraftItem" modID="havestcraft" itemName="foodSalt" itemMeta="0"/>
-      <component name="Chloride" factor="0.01" count="1">
-        <granularities>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-        </granularities>
-      </component>
-      <component name="Sodium" factor="0.01" count="1">
-        <granularities>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-          <amount>1000.0</amount>
-        </granularities>
-      </component>
+      <item class="MinecraftItem" modID="harvestcraft" itemName="foodSalt" itemMeta="0"/>
+      <component name="Chloride" granularity="1000.0" factor="0.01" count="1"/>
+      <component name="Sodium" granularity="1000.0" factor="0.01" count="1"/>
     </material>
   </materials>
 </water>

@@ -26,11 +26,13 @@ public class TestX {
   private void run() throws IOException {
     XStream xstream = makeXStream();
     
-    // Config cfg = new Config();
-    // cfg.config = (Water) readConfig(xstream, "test.xml");
-    // cfg.compute();
+    Config cfg = new Config();
+    cfg.config = (Water) readConfig(xstream, "test.xml");
+    cfg.compute();
 
-    go(xstream);
+    dump(xstream, cfg);
+
+    // go(xstream);
   }
 
   private XStream makeXStream() {
@@ -40,7 +42,7 @@ public class TestX {
     }
     
 //    xstream.setMode(XStream.ID_REFERENCES);
-    xstream.aliasPackage("", "test");
+    // xstream.aliasPackage("", "test");
     xstream.registerLocalConverter(Water.class, "contents",
     new NamedMapConverter(xstream.getMapper(), "component", "name", String.class, "ppm", Double.class, true, true, xstream.getConverterLookup())
     );
@@ -52,6 +54,7 @@ public class TestX {
     xstream.useAttributeFor(Component.class, "name");
     xstream.useAttributeFor(Component.class, "factor");
     xstream.useAttributeFor(Component.class, "count");
+    xstream.useAttributeFor(Component.class, "granularity");
     xstream.useAttributeFor(MinecraftItem.class, "modID");
     xstream.useAttributeFor(MinecraftItem.class, "itemName");
     xstream.useAttributeFor(MinecraftItem.class, "itemMeta");
@@ -59,6 +62,8 @@ public class TestX {
     xstream.alias("water", Water.class);
     xstream.alias("material", Material.class);
     xstream.alias("component", Component.class);
+    xstream.alias("OreDictionaryItem", OreDictionaryItem.class);
+    xstream.alias("MinecraftItem", MinecraftItem.class);
 
     ClassAliasingMapper mapper = new ClassAliasingMapper(xstream.getMapper());  
     mapper.addClassAlias("amount", Double.class);
@@ -113,12 +118,7 @@ public class TestX {
     c.factor = 1.0;
     m.density = 2.70;
     c.count = 1;
-    c.granularities = new ArrayList<Double>();
-    c.granularities.add(1.0);
-    c.granularities.add(1.0);
-    c.granularities.add(1.0);
-    c.granularities.add(1.0);
-    c.granularities.add(1.0);
+    c.granularity = 1.0;
     m.components.add(c);
     
     
@@ -126,7 +126,7 @@ public class TestX {
     m.name = "Salt";
     MinecraftItem mi = new MinecraftItem();
     m.item = mi;
-    mi.modID = "havestcraft";
+    mi.modID = "harvestcraft";
     mi.itemName = "foodSalt";
     mi.itemMeta = 0;
     m.prio = 1;
@@ -139,24 +139,14 @@ public class TestX {
     c.factor = 0.01;
     m.density = 2.165;
     c.count = 1;
-    c.granularities = new ArrayList<Double>();
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
+    c.granularity = 1000.0;
     m.components.add(c);
     
     c = new Component();
     c.name = "Sodium";
     c.factor = 0.01;
     c.count = 1;
-    c.granularities = new ArrayList<Double>();
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
-    c.granularities.add(1000.0);
+    c.granularity = 1000.0;
     m.components.add(c);
     
     
@@ -175,4 +165,15 @@ public class TestX {
     }
   }
   
+  void dump(XStream xstream, Config config) throws IOException {
+    File configFile = new File(configPath, "dump.xml");
+    BufferedWriter writer = null;
+    try {
+      writer = new BufferedWriter(new FileWriter(configFile, false));
+      xstream.toXML(config, writer);
+    } finally {
+      IOUtils.closeQuietly(writer);
+    }
+  }
+
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Component {
   String name;
-  List<Double> granularities;
+  Double granularity;
   Double factor;
   int count;
 }
