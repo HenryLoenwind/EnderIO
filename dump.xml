@@ -1,24 +1,4 @@
 <test.Config>
-  <level__reduction__factor>10</level__reduction__factor>
-  <num__levels>5</num__levels>
-  <config>
-    <contents>
-      <component name="Sodium" ppm="10561.0"/>
-      <component name="Aluminium" ppm="0.001"/>
-      <component name="Chloride" ppm="18980.0"/>
-    </contents>
-    <materials>
-      <material name="Aluminium" prio="1" volume="1000000.0" density="2.7">
-        <item class="OreDictionaryItem" oreDictionary="blockAluminium"/>
-        <component name="Aluminium" granularity="1.0" factor="1.0" count="1"/>
-      </material>
-      <material name="Salt" prio="1" volume="1000000.0" density="2.165">
-        <item class="MinecraftItem" modID="harvestcraft" itemName="foodSalt" itemMeta="0"/>
-        <component name="Chloride" granularity="1000.0" factor="0.01" count="1"/>
-        <component name="Sodium" granularity="1000.0" factor="0.01" count="1"/>
-      </material>
-    </materials>
-  </config>
   <levels>
     <water>
       <contents>
@@ -26,7 +6,11 @@
         <component name="Chloride" ppm="100.0"/>
       </contents>
       <materials>
-        <material reference="../../../../config/materials/material[2]"/>
+        <material name="Salt" prio="1" volume="1000000.0" density="2.165">
+          <item class="MinecraftItem" modID="harvestcraft" itemName="foodSalt" itemMeta="0"/>
+          <component name="Chloride" granularity="1000.0" factor="0.01" count="1"/>
+          <component name="Sodium" granularity="1000.0" factor="0.01" count="1"/>
+        </material>
       </materials>
     </water>
     <water>
@@ -35,7 +19,7 @@
         <component name="Chloride" ppm="50.0"/>
       </contents>
       <materials>
-        <material reference="../../../../config/materials/material[2]"/>
+        <material reference="../../../water/materials/material"/>
       </materials>
     </water>
     <water>
@@ -44,7 +28,7 @@
         <component name="Chloride" ppm="60.0"/>
       </contents>
       <materials>
-        <material reference="../../../../config/materials/material[2]"/>
+        <material reference="../../../water/materials/material"/>
       </materials>
     </water>
     <water>
@@ -54,8 +38,11 @@
         <component name="Chloride" ppm="10.0"/>
       </contents>
       <materials>
-        <material reference="../../../../config/materials/material"/>
-        <material reference="../../../../config/materials/material[2]"/>
+        <material name="Aluminium" prio="1" volume="1000000.0" density="2.7">
+          <item class="OreDictionaryItem" oreDictionary="blockAluminium"/>
+          <component name="Aluminium" granularity="1.0" factor="1.0" count="1"/>
+        </material>
+        <material reference="../../../water/materials/material"/>
       </materials>
     </water>
     <water>

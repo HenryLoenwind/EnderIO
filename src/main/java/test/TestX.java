@@ -26,9 +26,7 @@ public class TestX {
   private void run() throws IOException {
     XStream xstream = makeXStream();
     
-    Config cfg = new Config();
-    cfg.config = (Water) readConfig(xstream, "test.xml");
-    cfg.compute();
+    Config cfg = new Config((Water) readConfig(xstream, "test.xml"));
 
     dump(xstream, cfg);
 
@@ -151,15 +149,13 @@ public class TestX {
     
     
     
-    Config cfg = new Config();
-    cfg.config = wc;
-    cfg.compute();
+    // Config cfg = new Config(wc);
     
     File configFile = new File(configPath, "test.xml");
     BufferedWriter writer = null;
     try {
       writer = new BufferedWriter(new FileWriter(configFile, false));
-      xstream.toXML(/* wc */cfg.config, writer);
+      xstream.toXML(wc, writer);
     } finally {
       IOUtils.closeQuietly(writer);
     }
