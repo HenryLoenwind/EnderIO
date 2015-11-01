@@ -98,7 +98,7 @@ public class BlockTravelAnchor extends BlockEio implements IGuiHandler, ITileEnt
     TileEntity te = world.getTileEntity(x, y, z);
     if (te instanceof IPaintableTileEntity) {
       Block sourceBlock = ((IPaintableTileEntity) te).getSourceBlock();
-      if (sourceBlock != null) {
+      if (sourceBlock != null && sourceBlock != this) {
         return sourceBlock.getIcon(blockSide, ((IPaintableTileEntity) te).getSourceBlockMetadata());
       }
     }
@@ -200,7 +200,7 @@ public class BlockTravelAnchor extends BlockEio implements IGuiHandler, ITileEnt
     TileEntity te = world.getTileEntity(x, y, z);
     if (te instanceof IPaintableTileEntity) {
       Block sourceBlock = ((IPaintableTileEntity) te).getSourceBlock();
-      if (sourceBlock != null) {
+      if (sourceBlock != null && sourceBlock != this) {
         return sourceBlock.colorMultiplier(world, x, y, z);
       }
     }
