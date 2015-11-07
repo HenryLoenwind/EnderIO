@@ -1,6 +1,7 @@
 package crazypants.enderio.machine;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -243,6 +244,8 @@ public abstract class AbstractMachineEntity extends TileEntityEio implements ISi
       return;
     } // else is server, do all logic only on the server
 
+    long start = System.nanoTime();
+
     boolean requiresClientSync = forceClientUpdate;
     boolean prevRedCheck = redstoneCheckPassed;
     if(redstoneStateDirty) {
@@ -273,7 +276,27 @@ public abstract class AbstractMachineEntity extends TileEntityEio implements ISi
       notifyNeighbours = false;
     }
 
+    long elapsed = System.nanoTime() - start;
+    if (elapsed > 0) {
+      if (!profiler.containsKey(getClass())) {
+        profiler.put(getClass(), 0L);
+        profilerC.put(getClass(), 0L);
+      }
+      profiler.put(getClass(), profiler.get(getClass()) + elapsed);
+      profilerC.put(getClass(), profilerC.get(getClass()) + 1);
+      if (EnderIO.proxy.getTickCount() > lastProfiled) {
+        lastProfiled = EnderIO.proxy.getTickCount() + 200;
+        for (Entry<Class, Long> e : profiler.entrySet()) {
+          long avg = e.getValue() / profilerC.get(e.getKey());
+          System.out.println(e.getKey() + ": " + avg + " ns avg over " + profilerC.get(e.getKey()) + " calls");
+        }
+      }
+    }
   }
+
+  static Map<Class, Long> profiler = new HashMap<Class, Long>();
+  static Map<Class, Long> profilerC = new HashMap<Class, Long>();
+  static long lastProfiled = 0;
 
   protected void updateEntityClient() {
     // check if the block on the client needs to update its texture
