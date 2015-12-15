@@ -96,6 +96,13 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   @Override
+  @SideOnly(Side.CLIENT)
+  public void setWorldObj(World p_145834_1_) {
+    super.setWorldObj(p_145834_1_);
+    ConduitClientTickHandler.registerConduit(this);
+  }
+
+  @Override
   public void dirty() {
     conduitsDirty = true;
     collidablesDirty = true;
@@ -287,42 +294,41 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   private void updateEntityClient() {
-    boolean markForUpdate = false;
     if(clientUpdated) {
       //TODO: This is not the correct solution here but just marking the block for a render update server side
       //seems to get out of sync with the client sometimes so connections are not rendered correctly
-      markForUpdate = true;
+      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
       clientUpdated = false;
     }
+  }
 
-    FacadeRenderState curRS = getFacadeRenderedAs();
-    FacadeRenderState rs = ConduitUtil.getRequiredFacadeRenderState(this, EnderIO.proxy.getClientPlayer());
-
-    if(Config.updateLightingWhenHidingFacades) {
-      int curLO = getLightOpacity();
-      int shouldBeLO = rs == FacadeRenderState.FULL ? 255 : 0;
-      if(curLO != shouldBeLO) {
-        setLightOpacity(shouldBeLO);
-        //worldObj.updateAllLightTypes(xCoord, yCoord, zCoord);
-        worldObj.func_147451_t(xCoord, yCoord, zCoord);
+  @Override
+  @SideOnly(Side.CLIENT)
+  public void updateFacadeRenderState(FacadeRenderState rs) {
+    if (facadeRenderAs != rs) {
+      if (Config.updateLightingWhenHidingFacades) {
+        int curLO = getLightOpacity();
+        int shouldBeLO = rs == FacadeRenderState.FULL ? 255 : 0;
+        if (curLO != shouldBeLO) {
+          setLightOpacity(shouldBeLO);
+          worldObj.func_147451_t(xCoord, yCoord, zCoord);
+        }
       }
-    }
-
-    if(curRS != rs) {
       setFacadeRenderAs(rs);
-      if(!ConduitUtil.forceSkylightRecalculation(worldObj, xCoord, yCoord, zCoord)) {
-        markForUpdate = true;
+      if (!ConduitUtil.forceSkylightRecalculation(worldObj, xCoord, yCoord, zCoord)) {
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
       }
-    } else { //can do the else as only need to update once
-      ConduitDisplayMode curMode = ConduitDisplayMode.getDisplayMode(EnderIO.proxy.getClientPlayer().getCurrentEquippedItem());
-      if(curMode != lastMode) {
-        markForUpdate = true;
-        lastMode = curMode;
-      }
-
     }
-    if(markForUpdate) {
-      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+  }
+
+  @Override
+  @SideOnly(Side.CLIENT)
+  public void updateConduitDisplayMode(ConduitDisplayMode cd) {
+    if (cd != lastMode) {
+      lastMode = cd;
+      if (facadeRenderAs != FacadeRenderState.FULL) {
+        worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+      }
     }
   }
 
