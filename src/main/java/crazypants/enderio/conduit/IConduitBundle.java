@@ -121,4 +121,10 @@ public interface IConduitBundle extends IInternalPowerHandler, IFluidHandler, II
   World getWorld();
 
   void setGridNode(Object node);
+
+  @SideOnly(Side.CLIENT)
+  void updateConduitDisplayMode(ConduitDisplayMode cd);
+
+  @SideOnly(Side.CLIENT)
+  void updateFacadeRenderState(FacadeRenderState rs);
 }
