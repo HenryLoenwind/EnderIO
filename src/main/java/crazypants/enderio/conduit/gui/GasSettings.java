@@ -14,6 +14,7 @@ import com.enderio.core.common.util.DyeColor;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.gas.AbstractGasConduit;
 import crazypants.enderio.conduit.gas.IGasConduit;
 import crazypants.enderio.conduit.packet.PacketExtractMode;
 import crazypants.enderio.gui.IconEIO;
@@ -52,7 +53,7 @@ public class GasSettings extends BaseSettingsPanel {
         RedstoneControlMode curMode = getRedstoneControlMode();
         conduit.setExtractionRedstoneMode(mode, gui.getDir());
         if(curMode != mode) {
-          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((AbstractGasConduit) conduit, gui.getDir()));
         }
 
       }
@@ -74,7 +75,7 @@ public class GasSettings extends BaseSettingsPanel {
     super.actionPerformed(guiButton);
     if(guiButton.id == ID_COLOR_BUTTON) {
       conduit.setExtractionSignalColor(gui.getDir(), DyeColor.values()[colorB.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((AbstractGasConduit) conduit, gui.getDir()));
     }
   }
 
@@ -106,23 +107,12 @@ public class GasSettings extends BaseSettingsPanel {
   protected void renderCustomOptions(int top, float par1, int par2, int par3) {
     boolean isInput = isInput();
     if(isInput) {
-      int x = gui.getGuiLeft() + gap + gui.getFontRenderer().getStringWidth(autoExtractStr) + gap + 2;
-      int y = customTop;
       gui.getFontRenderer().drawString(autoExtractStr, left, top, ColorUtil.getRGB(Color.DARK_GRAY));
     }
   }
 
-  private void renderGas(Gas f, int x, int y) {
-    IIcon icon = f.getIcon();
-    if(icon != null) {
-      RenderUtil.bindBlockTexture();
-      gui.drawTexturedModelRectFromIcon(x + 1, y + 1, icon, 16, 16);
-    }
-
-  }
-
   private boolean isInput() {
-    return conduit.getConnectionMode(gui.getDir()) == ConnectionMode.INPUT;
+    return ((IConduit) conduit).getConnectionMode(gui.getDir()) == ConnectionMode.INPUT;
   }
 
 }

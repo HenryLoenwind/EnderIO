@@ -15,13 +15,15 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.enderio.core.common.util.BlockCoord;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.conduit.geom.CollidableCache.CacheKey;
 import crazypants.enderio.conduit.geom.CollidableComponent;
 
-public interface IConduit {
+public interface IConduit<N extends AbstractConduitNetwork<?, ?>> extends IConduitType {
 
   // Base functionality
-  Class<? extends IConduit> getBaseConduitType();
+  Class<? extends IConduitType> getBaseConduitType();
 
   ItemStack createItem();
   
@@ -70,9 +72,11 @@ public interface IConduit {
 
   void connectionsChanged();
 
-  AbstractConduitNetwork<?, ?> getNetwork();
+  N getNetwork();
 
-  boolean setNetwork(AbstractConduitNetwork<?, ?> network);
+  boolean hasNetwork();
+
+  boolean setNetwork(N network);
 
   // External Connections
 
@@ -116,7 +120,7 @@ public interface IConduit {
 
   Collection<CollidableComponent> createCollidables(CacheKey key);
 
-  Class<? extends IConduit> getCollidableType();
+  Class<? extends IConduitType> getCollidableType();
 
   // Actions
 
@@ -124,7 +128,7 @@ public interface IConduit {
 
   void onChunkUnload(World worldObj);
 
-  void updateEntity(World worldObj);
+  void updateEntity();
 
   boolean onNeighborBlockChange(Block blockId);
   

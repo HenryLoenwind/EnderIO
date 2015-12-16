@@ -6,7 +6,7 @@ import com.enderio.core.common.util.DyeColor;
 
 import crazypants.enderio.machine.RedstoneControlMode;
 
-public interface IExtractor extends IConduit {
+public interface IExtractor extends IConduitType {
 
   void setExtractionRedstoneMode(RedstoneControlMode mode, ForgeDirection dir);
 

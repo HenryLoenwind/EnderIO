@@ -14,10 +14,11 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.enderio.core.common.util.BlockCoord;
 
 import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
 import crazypants.enderio.power.IPowerInterface;
 
-public class PowerConduitNetwork extends AbstractConduitNetwork<IPowerConduit, IPowerConduit> {
+public class PowerConduitNetwork extends AbstractConduitNetwork<IPowerConduit, PowerConduit> {
 
   // ----------------------------------------------------------------------
 
@@ -26,11 +27,11 @@ public class PowerConduitNetwork extends AbstractConduitNetwork<IPowerConduit, I
   private final Map<ReceptorKey, ReceptorEntry> powerReceptors = new HashMap<ReceptorKey, ReceptorEntry>();
 
   public PowerConduitNetwork() {
-    super(IPowerConduit.class, IPowerConduit.class);
+    super(PowerConduit.class, IPowerConduit.class);
   }
 
   @Override
-  public void init(IConduitBundle tile, Collection<IPowerConduit> connections, World world) {
+  public void init(IConduitBundle tile, Collection<PowerConduit> connections, World world) {
     super.init(tile, connections, world);
     powerManager = new NetworkPowerManager(this, world);
     powerManager.receptorsChanged();
@@ -39,7 +40,7 @@ public class PowerConduitNetwork extends AbstractConduitNetwork<IPowerConduit, I
   @Override
   public void destroyNetwork() {
     for (IPowerConduit con : conduits) {
-      con.setActive(false);
+      ((IConduit) con).setActive(false);
     }
     if(powerManager != null) {
       powerManager.onNetworkDestroyed();
@@ -52,7 +53,7 @@ public class PowerConduitNetwork extends AbstractConduitNetwork<IPowerConduit, I
   }
 
   @Override
-  public void addConduit(IPowerConduit con) {
+  public void addConduit(PowerConduit con) {
     super.addConduit(con);
     Set<ForgeDirection> externalDirs = con.getExternalConnections();
     for (ForgeDirection dir : externalDirs) {

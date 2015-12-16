@@ -15,12 +15,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
 
 @Interface(iface = "li.cil.oc.api.network.ManagedEnvironment", modid = "OpenComputersAPI|Network")
-public class OCConduitNetwork extends AbstractConduitNetwork<IOCConduit, IOCConduit> implements ManagedEnvironment {
+public class OCConduitNetwork extends AbstractConduitNetwork<IOCConduit, OCConduit> implements ManagedEnvironment {
 
   private Node[] node = new Node[DyeColor.values().length];
 
   public OCConduitNetwork() {
-    super(IOCConduit.class, IOCConduit.class);
+    super(OCConduit.class, IOCConduit.class);
     for (DyeColor dyeColor : DyeColor.values()) {
       node[dyeColor.ordinal()] = Network.newNode(this, Visibility.Network).create();
       Network.joinNewNetwork(node[dyeColor.ordinal()]);

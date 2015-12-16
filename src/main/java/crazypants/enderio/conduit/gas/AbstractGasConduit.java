@@ -16,14 +16,16 @@ import com.enderio.core.common.util.DyeColor;
 
 import cpw.mods.fml.common.Optional.Method;
 import crazypants.enderio.conduit.AbstractConduit;
+import crazypants.enderio.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.machine.RedstoneControlMode;
 import crazypants.enderio.machine.reservoir.TileReservoir;
 
-public abstract class AbstractGasConduit extends AbstractConduit implements IGasConduit {
+public abstract class AbstractGasConduit<N extends AbstractConduitNetwork<?, ?>> extends AbstractConduit<N> implements IGasConduit {
 
   protected final EnumMap<ForgeDirection, RedstoneControlMode> extractionModes = new EnumMap<ForgeDirection, RedstoneControlMode>(ForgeDirection.class);
   protected final EnumMap<ForgeDirection, DyeColor> extractionColors = new EnumMap<ForgeDirection, DyeColor>(ForgeDirection.class);
@@ -52,7 +54,7 @@ public abstract class AbstractGasConduit extends AbstractConduit implements IGas
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IGasConduit.class;
   }
 

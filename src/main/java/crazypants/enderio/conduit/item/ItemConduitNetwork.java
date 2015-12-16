@@ -12,12 +12,14 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.enderio.core.common.util.BlockCoord;
 
+import crazypants.enderio.conduit.AbstractConduit;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.item.NetworkedInventory.Target;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
 import crazypants.enderio.machine.invpanel.server.InventoryDatabaseServer;
 
-public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IItemConduit> {
+public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, ItemConduit> {
 
   final List<NetworkedInventory> inventories = new ArrayList<NetworkedInventory>();
   private final Map<BlockCoord, List<NetworkedInventory>> invMap = new HashMap<BlockCoord, List<NetworkedInventory>>();
@@ -33,11 +35,11 @@ public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IIt
   private InventoryDatabaseServer database;
 
   public ItemConduitNetwork() {
-    super(IItemConduit.class, IItemConduit.class);
+    super(ItemConduit.class, IItemConduit.class);
   }
 
   @Override
-  public void addConduit(IItemConduit con) {
+  public void addConduit(ItemConduit con) {
     super.addConduit(con);
     conMap.put(con.getLocation(), con);
 
@@ -52,7 +54,7 @@ public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IIt
     }
   }
 
-  public void inventoryAdded(IItemConduit itemConduit, ForgeDirection direction, int x, int y, int z, IInventory externalInventory) {
+  public void inventoryAdded(ItemConduit itemConduit, ForgeDirection direction, int x, int y, int z, IInventory externalInventory) {
     BlockCoord bc = new BlockCoord(x, y, z);
     NetworkedInventory inv = new NetworkedInventory(this, externalInventory, itemConduit, direction, bc);
     inventories.add(inv);
@@ -93,7 +95,7 @@ public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IIt
     List<NetworkedInventory> invs = getOrCreate(bc);
     NetworkedInventory remove = null;
     for (NetworkedInventory ni : invs) {
-      if(ni.con.getLocation().equals(itemConduit.getLocation())) {
+      if (((IConduit) ni.con).getLocation().equals(itemConduit.getLocation())) {
         remove = ni;
         break;
       }
@@ -156,7 +158,7 @@ public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IIt
       List<NetworkedInventory> invs = getOrCreate(loc);
       for (NetworkedInventory inv : invs) {
 
-        if(inv.con.getLocation().equals(itemConduit.getLocation())) {
+        if (((IConduit) inv.con).getLocation().equals(itemConduit.getLocation())) {
           int numInserted = inv.insertIntoTargets(item.copy());
           if(numInserted >= item.stackSize) {
             return null;
@@ -176,7 +178,7 @@ public class ItemConduitNetwork extends AbstractConduitNetwork<IItemConduit, IIt
     List<NetworkedInventory> invs = getOrCreate(extractFrom);
     for (NetworkedInventory source : invs) {
 
-      if(source.con.getLocation().equals(con.getLocation())) {
+      if (((IConduit) source.con).getLocation().equals(((IConduit) con).getLocation())) {
         if(source.sendPriority != null) {
           for (Target t : source.sendPriority) {
             IItemFilter f = t.inv.con.getOutputFilter(t.inv.conDir);

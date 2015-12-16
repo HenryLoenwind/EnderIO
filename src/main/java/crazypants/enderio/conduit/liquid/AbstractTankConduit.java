@@ -16,14 +16,19 @@ import net.minecraftforge.fluids.FluidStack;
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.ChatUtil;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.ConduitClientTickHandler;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IClientTickingConduit;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.tool.ToolUtil;
 
-public abstract class AbstractTankConduit extends AbstractLiquidConduit {
+public abstract class AbstractTankConduit<T extends AbstractTankConduitNetwork> extends AbstractLiquidConduit<T> implements
+    IClientTickingConduit {
 
   protected ConduitTank tank = new ConduitTank(0);
   protected boolean stateDirty = false;
@@ -31,6 +36,10 @@ public abstract class AbstractTankConduit extends AbstractLiquidConduit {
   protected int numEmptyEvents = 0;
   protected boolean fluidTypeLocked = false;
   private int lastLightValue;
+
+  public AbstractTankConduit() {
+    ConduitClientTickHandler.registerConduit(this);
+  }
 
   @Override
   public boolean onBlockActivated(EntityPlayer player, RaytraceResult res, List<RaytraceResult> all) {
@@ -190,14 +199,23 @@ public abstract class AbstractTankConduit extends AbstractLiquidConduit {
   }
 
   @Override
-  public void updateEntity(World world) {
+  public void updateEntity() {
+    updateLights();
+  }
+
+  @Override
+  @SideOnly(Side.CLIENT)
+  public void updateEntityClient() {
+    updateLights();
+  }
+
+  private void updateLights() {
     int lightValue = getLightValue();
     if(lastLightValue != lightValue) {
       BlockCoord bc = getLocation();
       getBundle().getWorld().updateLightByType(EnumSkyBlock.Block, bc.x, bc.y, bc.z);
       lastLightValue = lightValue;
     }
-    super.updateEntity(world);
   }
 
   @Override

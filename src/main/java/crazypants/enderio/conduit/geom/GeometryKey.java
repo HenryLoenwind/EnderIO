@@ -2,6 +2,7 @@ package crazypants.enderio.conduit.geom;
 
 import net.minecraftforge.common.util.ForgeDirection;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 
 public final class GeometryKey {
 
@@ -10,7 +11,7 @@ public final class GeometryKey {
   public final Offset offset;
   public final String className;
 
-  public GeometryKey(ForgeDirection dir, boolean isStub, Offset offset, Class<? extends IConduit> type) {
+  public GeometryKey(ForgeDirection dir, boolean isStub, Offset offset, Class<? extends IConduitType> type) {
     this.dir = dir;
     this.isStub = isStub;
     this.offset = offset;

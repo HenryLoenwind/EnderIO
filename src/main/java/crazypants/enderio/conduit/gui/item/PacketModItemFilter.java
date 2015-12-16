@@ -6,6 +6,7 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.item.filter.ModItemFilter;
 import crazypants.enderio.conduit.packet.AbstractConduitPacket;
@@ -21,7 +22,7 @@ public class PacketModItemFilter extends AbstractConduitPacket<IItemConduit> imp
   public PacketModItemFilter() {    
   }
   
-  public PacketModItemFilter(IItemConduit con, ForgeDirection dir, boolean isInput, int index, String name) {
+  public <T extends IConduit & IItemConduit> PacketModItemFilter(T con, ForgeDirection dir, boolean isInput, int index, String name) {
     super(con.getBundle().getEntity(), ConTypeEnum.ITEM);
     this.dir = dir;
     this.isInput= isInput;

@@ -14,10 +14,11 @@ import cpw.mods.fml.common.Optional.Method;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.tool.ToolUtil;
 
-public abstract class AbstractGasTankConduit extends AbstractGasConduit {
+public abstract class AbstractGasTankConduit<N extends AbstractConduitNetwork<?, ?>> extends AbstractGasConduit<N> {
 
   protected ConduitGasTank tank = new ConduitGasTank(0);
   protected boolean stateDirty = false;
@@ -46,11 +47,11 @@ public abstract class AbstractGasTankConduit extends AbstractGasConduit {
             }
 
             BlockCoord loc = getLocation().getLocation(faceHit);
-            IGasConduit n = ConduitUtil.getConduit(getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z, IGasConduit.class);
+            IConduit n = ConduitUtil.getConduit(getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z, getBaseConduitType());
             if(n == null) {
               return false;
             }
-            if(!canJoinNeighbour(n)) {
+            if (!canJoinNeighbour((IGasConduit) n)) {
               return false;
             }
             if(!(n instanceof AbstractGasTankConduit)) {

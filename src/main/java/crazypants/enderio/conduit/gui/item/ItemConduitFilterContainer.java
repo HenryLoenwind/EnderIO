@@ -2,6 +2,7 @@ package crazypants.enderio.conduit.gui.item;
 
 import net.minecraftforge.common.util.ForgeDirection;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.filter.ItemFilter;
 import crazypants.enderio.conduit.packet.PacketItemConduitFilter;
 import crazypants.enderio.network.PacketHandler;
@@ -29,7 +30,7 @@ public class ItemConduitFilterContainer implements IItemFilterContainer {
 
   @Override
   public void onFilterChanged() {
-    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter(itemConduit, dir));
+    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter((ItemConduit) itemConduit, dir));
   }
 
 }

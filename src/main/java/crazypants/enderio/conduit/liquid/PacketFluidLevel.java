@@ -10,6 +10,8 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.util.ClientUtil;
 
 public class PacketFluidLevel extends MessageTileEntity<TileEntity> implements IMessageHandler<PacketFluidLevel, IMessage>{
@@ -19,7 +21,7 @@ public class PacketFluidLevel extends MessageTileEntity<TileEntity> implements I
   public PacketFluidLevel() {
   }
 
-  public PacketFluidLevel(ILiquidConduit conduit) {
+  public <T extends IConduit & ILiquidConduit> PacketFluidLevel(T conduit) {
     super(conduit.getBundle().getEntity());
     tc = new NBTTagCompound();
     conduit.writeToNBT(tc);

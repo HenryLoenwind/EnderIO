@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import crazypants.enderio.Log;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.power.PowerConduitNetwork.ReceptorEntry;
 import crazypants.enderio.config.Config;
 import crazypants.enderio.power.IPowerInterface;
@@ -24,9 +25,6 @@ public class NetworkPowerManager {
 
   int maxEnergyStored;
   int energyStored;
-
-  private int updateRenderTicks = 10;
-  private int inactiveTicks = 100;
 
   private final List<ReceptorEntry> receptors = new ArrayList<PowerConduitNetwork.ReceptorEntry>();
   private ListIterator<ReceptorEntry> receptorIterator = receptors.listIterator();
@@ -206,7 +204,7 @@ public class NetworkPowerManager {
       return;
     }
     for (IPowerConduit con : network.getConduits()) {
-      if(con.hasExternalConnections()) {
+      if (((IConduit<?>) con).hasExternalConnections()) {
         PowerTracker tracker = getOrCreateTracker(con);
         tracker.tickStart(con.getEnergyStored());
       }
@@ -238,7 +236,7 @@ public class NetworkPowerManager {
       return;
     }
     for (IPowerConduit con : network.getConduits()) {
-      if(con.hasExternalConnections()) {
+      if (((IConduit<?>) con).hasExternalConnections()) {
         PowerTracker tracker = getOrCreateTracker(con);
         tracker.tickEnd(con.getEnergyStored());
       }
@@ -265,7 +263,6 @@ public class NetworkPowerManager {
 
     float filledRatio = (float) energyStored / maxEnergyStored;
     int energyLeft = energyStored;
-    int given = 0;
     for (IPowerConduit con : network.getConduits()) {
       if(energyLeft > 0) {
         // NB: use ceil to ensure we dont through away any energy due to
@@ -275,7 +272,6 @@ public class NetworkPowerManager {
         give = Math.min(give, con.getMaxEnergyStored());
         give = Math.min(give, energyLeft);
         con.setEnergyStored(give);
-        given += give;
         energyLeft -= give;
       } else {
         con.setEnergyStored(0);
@@ -324,20 +320,6 @@ public class NetworkPowerManager {
   void onNetworkDestroyed() {
   }
 
-  private static class StarveBuffer {
-
-    int stored;
-
-    public StarveBuffer(int stored) {
-      this.stored = stored;
-    }
-
-    void addToStore(float val) {
-      stored += val;
-    }
-
-  }
-
   private int minAbs(int amount, int limit) {
     if(amount < 0) {
       return Math.max(amount, -limit);
@@ -383,7 +365,7 @@ public class NetworkPowerManager {
           capBanks.add(cb.getController());
         }
 
-        if(rec.emmiter.getConnectionMode(rec.direction) == ConnectionMode.IN_OUT) {
+        if (((IConduit<?>) rec.emmiter).getConnectionMode(rec.direction) == ConnectionMode.IN_OUT) {
           toBalance += cb.getEnergyStoredL();
           maxToBalance += cb.getMaxEnergyStoredL();
         }
@@ -421,7 +403,7 @@ public class NetworkPowerManager {
       int canRemove = 0;
       int canAdd = 0;
       for (CapBankSupplyEntry entry : enteries) {
-        if(entry.emmiter.getConnectionMode(entry.direction) == ConnectionMode.IN_OUT) {
+        if (((IConduit<?>) entry.emmiter).getConnectionMode(entry.direction) == ConnectionMode.IN_OUT) {
           entry.calcToBalance(filledRatio);
           if(entry.toBalance < 0) {
             canRemove += -entry.toBalance;
@@ -435,7 +417,7 @@ public class NetworkPowerManager {
 
       for (int i = 0; i < enteries.size() && toalTransferAmount > 0; i++) {
         CapBankSupplyEntry from = enteries.get(i);
-        if(from.emmiter.getConnectionMode(from.direction) == ConnectionMode.IN_OUT) {
+        if (((IConduit<?>) from.emmiter).getConnectionMode(from.direction) == ConnectionMode.IN_OUT) {
 
           int amount = from.toBalance;
           amount = minAbs(amount, toalTransferAmount);

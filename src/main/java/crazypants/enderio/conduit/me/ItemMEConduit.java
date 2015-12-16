@@ -7,6 +7,7 @@ import crazypants.enderio.ModObject;
 import crazypants.enderio.conduit.AbstractItemConduit;
 import crazypants.enderio.conduit.ConduitDisplayMode;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.ItemConduitSubtype;
 import crazypants.enderio.gui.IconEIO;
 
@@ -31,7 +32,7 @@ public class ItemMEConduit extends AbstractItemConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IMEConduit.class;
   }
 

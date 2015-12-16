@@ -6,7 +6,7 @@ import crazypants.enderio.api.tool.IHideFacades;
 
 public interface IConduitItem extends IHideFacades {
 
-  Class<? extends IConduit> getBaseConduitType();
+  Class<? extends IConduitType> getBaseConduitType();
 
   IConduit createConduit(ItemStack item, EntityPlayer player);
 

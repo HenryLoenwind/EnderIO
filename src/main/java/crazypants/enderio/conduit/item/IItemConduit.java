@@ -9,10 +9,11 @@ import cofh.api.transport.IItemDuct;
 import com.enderio.core.common.util.DyeColor;
 
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.IExtractor;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
 
-public interface IItemConduit extends IConduit, IItemDuct, IExtractor {
+public interface IItemConduit extends IItemDuct, IExtractor {
 
   IIcon getTextureForInputMode();
 

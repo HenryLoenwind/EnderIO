@@ -46,9 +46,9 @@ public interface IConduitBundle extends IInternalPowerHandler, IFluidHandler, II
 
   // conduits
 
-  boolean hasType(Class<? extends IConduit> type);
+  boolean hasType(Class<? extends IConduitType> type);
 
-  <T extends IConduit> T getConduit(Class<T> type);
+  <T extends IConduit, S extends IConduitType> T getConduit(Class<S> type);
 
   void addConduit(IConduit conduit);
 
@@ -56,13 +56,13 @@ public interface IConduitBundle extends IInternalPowerHandler, IFluidHandler, II
 
   Collection<IConduit> getConduits();
 
-  Offset getOffset(Class<? extends IConduit> type, ForgeDirection dir);
+  Offset getOffset(Class<? extends IConduitType> type, ForgeDirection dir);
 
   // connections
 
-  Set<ForgeDirection> getConnections(Class<? extends IConduit> type);
+  Set<ForgeDirection> getConnections(Class<? extends IConduitType> type);
 
-  boolean containsConnection(Class<? extends IConduit> type, ForgeDirection west);
+  boolean containsConnection(Class<? extends IConduitType> type, ForgeDirection west);
 
   Set<ForgeDirection> getAllConnections();
 

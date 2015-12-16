@@ -6,8 +6,10 @@ import net.minecraft.world.World;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 
-public class AbstractConduitPacket<T extends IConduit> extends AbstractConduitBundlePacket {
+public class AbstractConduitPacket<T extends IConduitType> extends
+    AbstractConduitBundlePacket {
 
   protected ConTypeEnum conType;
 
@@ -19,7 +21,7 @@ public class AbstractConduitPacket<T extends IConduit> extends AbstractConduitBu
     this.conType = conType;    
   }
 
-  protected Class<? extends IConduit> getConType() {
+  protected Class<? extends IConduitType> getConType() {
     return conType.getBaseType();
   }
 

@@ -69,6 +69,7 @@ import crazypants.enderio.conduit.packet.PacketRedstoneConduitSignalColor;
 import crazypants.enderio.conduit.redstone.IInsulatedRedstoneConduit;
 import crazypants.enderio.conduit.redstone.IRedstoneConduit;
 import crazypants.enderio.conduit.redstone.InsulatedRedstoneConduit;
+import crazypants.enderio.conduit.redstone.RedstoneConduitNetwork;
 import crazypants.enderio.item.IRotatableFacade;
 import crazypants.enderio.item.ItemConduitProbe;
 import crazypants.enderio.machine.painter.PainterUtil;
@@ -501,7 +502,7 @@ public class BlockConduitBundle extends BlockEio implements IGuiHandler, IFacade
     if(rt == null || rt.component == null) {
       return false;
     }
-    Class<? extends IConduit> type = rt.component.conduitType;
+    Class<? extends IConduitType> type = rt.component.conduitType;
     if(!ConduitUtil.renderConduit(player, type)) {
       return false;
     }
@@ -811,7 +812,7 @@ public class BlockConduitBundle extends BlockEio implements IGuiHandler, IFacade
   @Override
   public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ) {
     TileEntity conduit = world.getTileEntity(x, y, z);
-    if(conduit instanceof IConduitBundle) {
+    if (conduit instanceof IConduitBundle && !conduit.getWorldObj().isRemote) {
       ((IConduitBundle) conduit).onNeighborChange(world, x, y, z, tileX, tileY, tileZ);
     }
   }
@@ -877,7 +878,8 @@ public class BlockConduitBundle extends BlockEio implements IGuiHandler, IFacade
       // This is an ugly special case, TODO fix this
       for (RaytraceResult hit : results) {
         IInsulatedRedstoneConduit cond = con.getConduit(IInsulatedRedstoneConduit.class);
-        if(cond != null && hit.component != null && cond.getExternalConnections().contains(hit.component.dir) && !cond.isSpecialConnection(hit.component.dir)
+        if (cond != null && hit.component != null && ((IConduit) cond).getExternalConnections().contains(hit.component.dir)
+            && !cond.isSpecialConnection(hit.component.dir)
             && hit.component.data == InsulatedRedstoneConduit.COLOR_CONTROLLER_ID) {
           minBB = hit.component.bound;
         }
@@ -1088,7 +1090,7 @@ public class BlockConduitBundle extends BlockEio implements IGuiHandler, IFacade
     if(conduit == null) {
       return RedNetConnectionType.None;
     }
-    return conduit.canConnectToExternal(side, false) ? RedNetConnectionType.CableAll : RedNetConnectionType.None;
+    return ((IConduit) conduit).canConnectToExternal(side, false) ? RedNetConnectionType.CableAll : RedNetConnectionType.None;
   }
 
   private static IRedstoneConduit getRedstoneConduit(IBlockAccess world, int x, int y, int z) {

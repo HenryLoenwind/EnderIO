@@ -1,5 +1,8 @@
 package crazypants.enderio.conduit.liquid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraftforge.fluids.FluidStack;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
 
@@ -68,6 +71,14 @@ public class AbstractTankConduitNetwork<T extends AbstractTankConduit> extends A
       totalVolume += con.getTank().getFluidAmount();
     }
     return totalVolume;
+  }
+
+  @Override
+  public void doNetworkTick() {
+    List<T> tmp = new ArrayList<T>(conduits);
+    for (T conduit : tmp) {
+      conduit.updateEntity();
+    }
   }
 
 }

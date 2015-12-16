@@ -1,6 +1,7 @@
 package crazypants.enderio.conduit.packet;
 
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.gas.IGasConduit;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.liquid.ILiquidConduit;
@@ -19,13 +20,13 @@ public enum ConTypeEnum {
   ME(IMEConduit.class),
   OC(IOCConduit.class);
 
-  final Class<? extends IConduit> baseType;
+  final Class<? extends IConduitType> baseType;
 
-  private ConTypeEnum(Class<? extends IConduit> baseType) {
+  private ConTypeEnum(Class<? extends IConduitType> baseType) {
     this.baseType = baseType;
   }
 
-  public Class<? extends IConduit> getBaseType() {
+  public Class<? extends IConduitType> getBaseType() {
     return baseType;
   }
 

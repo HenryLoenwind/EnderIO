@@ -19,6 +19,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import crazypants.enderio.conduit.ConduitNetworkTickHandler;
 import crazypants.enderio.conduit.ConduitNetworkTickHandler.TickListener;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.power.IPowerConduit;
 import crazypants.enderio.machine.IoMode;
 import crazypants.enderio.machine.RedstoneControlMode;
@@ -286,7 +287,8 @@ public class CapBankNetwork implements ICapBankNetwork {
     //Can only send to power conduits if we are in push mode or the conduit is in pull mode
     //With default setting interaction between conduits and Cap Banks is handled by NetworkPowerManager
     IPowerConduit con = next.getConduit();
-    if(con != null && next.getMode() == IoMode.NONE && con.getConnectionMode(next.getDir().getOpposite()) == ConnectionMode.IN_OUT) {
+    if (con != null && next.getMode() == IoMode.NONE
+        && ((IConduit<?>) con).getConnectionMode(next.getDir().getOpposite()) == ConnectionMode.IN_OUT) {
       return 0;
     }
     IPowerInterface inf = next.getReceptor();

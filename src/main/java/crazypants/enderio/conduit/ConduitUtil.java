@@ -44,28 +44,34 @@ public class ConduitUtil {
   public static final Random RANDOM = new Random();
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static void ensureValidNetwork(IConduit conduit) {
-    TileEntity te = conduit.getBundle().getEntity();
-    World world = te.getWorldObj();
-    Collection<? extends IConduit> connections = ConduitUtil.getConnectedConduits(world, te.xCoord, te.yCoord, te.zCoord, conduit.getBaseConduitType());
+  public static <T extends IConduit & IConduitType> void ensureValidNetwork(T conduit) {
+    final IConduitBundle bundle = conduit.getBundle();
+    if (bundle != null) {
+      TileEntity te = bundle.getEntity();
+      World world = te.getWorldObj();
+      Collection<? extends IConduit> connections = ConduitUtil.getConnectedConduits(world, te.xCoord, te.yCoord, te.zCoord,
+          conduit.getBaseConduitType());
 
-    if(reuseNetwork(conduit, connections, world)) {
-      return;
+      if (reuseNetwork(conduit, connections, world)) {
+        return;
+      }
+
+      AbstractConduitNetwork res = conduit.createNetworkForType();
+      res.init(bundle, connections, world);
     }
-
-    AbstractConduitNetwork res = conduit.createNetworkForType();
-    res.init(conduit.getBundle(), connections, world);
-    return;
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static boolean reuseNetwork(IConduit con, Collection<? extends IConduit> connections, World world) {
+  private static <T extends IConduit & IConduitType> boolean reuseNetwork(T con, Collection<? extends IConduit> connections,
+      World world) {
     AbstractConduitNetwork network = null;
     for (IConduit conduit : connections) {
-      if(network == null) {
-        network = conduit.getNetwork();
-      } else if(network != conduit.getNetwork()) {
-        return false;
+      if (conduit.hasNetwork()) {
+        if (network == null) {
+          network = conduit.getNetwork();
+        } else if (network != conduit.getNetwork()) {
+          return false;
+        }
       }
     }
     if(network == null) {
@@ -85,11 +91,12 @@ public class ConduitUtil {
     IConduit neighbour = ConduitUtil.getConduit(con.getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z, con.getBaseConduitType());
     if(neighbour != null) {
       neighbour.conduitConnectionRemoved(connDir.getOpposite());
-      if(neighbour.getNetwork() != null) {
+      if (neighbour.hasNetwork()) {
         neighbour.getNetwork().destroyNetwork();
       }
     }
-    if(con.getNetwork() != null) { //this should have been destroyed when destroying the neighbours network but lets just make sure
+    if (con.hasNetwork()) { // this should have been destroyed when destroying
+                            // the neighbours network but lets just make sure
       con.getNetwork().destroyNetwork();
     }
     con.connectionsChanged();
@@ -98,16 +105,16 @@ public class ConduitUtil {
     }
   }
 
-  public static <T extends IConduit> boolean joinConduits(T con, ForgeDirection faceHit) {
+  public static <T extends IConduit<?>> boolean joinConduits(T con, ForgeDirection faceHit) {
     BlockCoord loc = con.getLocation().getLocation(faceHit);
     IConduit neighbour = ConduitUtil.getConduit(con.getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z, con.getBaseConduitType());
     if(neighbour != null && con.canConnectToConduit(faceHit, neighbour) && neighbour.canConnectToConduit(faceHit.getOpposite(), con)) {
       con.conduitConnectionAdded(faceHit);
       neighbour.conduitConnectionAdded(faceHit.getOpposite());
-      if(con.getNetwork() != null) {
+      if (con.hasNetwork()) {
         con.getNetwork().destroyNetwork();
       }
-      if(neighbour.getNetwork() != null) {
+      if (neighbour.hasNetwork()) {
         neighbour.getNetwork().destroyNetwork();
       }
       con.connectionsChanged();
@@ -179,7 +186,7 @@ public class ConduitUtil {
     return renderConduit(player, con.getBaseConduitType());
   }
 
-  public static boolean renderConduit(EntityPlayer player, Class<? extends IConduit> conduitType) {
+  public static boolean renderConduit(EntityPlayer player, Class<? extends IConduitType> conduitType) {
     if(player == null || conduitType == null) {
       return true;
     }
@@ -223,7 +230,7 @@ public class ConduitUtil {
     return equipped.getItem() == EnderIO.itemConduitProbe;
   }
 
-  public static <T extends IConduit> T getConduit(World world, int x, int y, int z, Class<T> type) {
+  public static <T extends IConduit> T getConduit(World world, int x, int y, int z, Class<? extends IConduitType> type) {
     if(world == null || !world.blockExists(x, y, z)) {
       return null;
     }
@@ -235,11 +242,13 @@ public class ConduitUtil {
     return null;
   }
 
-  public static <T extends IConduit> T getConduit(World world, TileEntity te, ForgeDirection dir, Class<T> type) {
+  public static <T extends IConduit<?>> T getConduit(World world, TileEntity te, ForgeDirection dir,
+      Class<? extends IConduitType> type) {
     return ConduitUtil.getConduit(world, te.xCoord + dir.offsetX, te.yCoord + dir.offsetY, te.zCoord + dir.offsetZ, type);
   }
 
-  public static <T extends IConduit> Collection<T> getConnectedConduits(World world, int x, int y, int z, Class<T> type) {
+  public static <T extends IConduit<?>> Collection<T> getConnectedConduits(World world, int x, int y, int z,
+      Class<? extends IConduitType> type) {
     TileEntity te = world.getTileEntity(x, y, z);
     if(!(te instanceof IConduitBundle)) {
       return Collections.emptyList();
@@ -259,7 +268,7 @@ public class ConduitUtil {
     return result;
   }
 
-  public static void writeToNBT(IConduit conduit, NBTTagCompound conduitRoot) {
+  public static void writeToNBT(IConduit<?> conduit, NBTTagCompound conduitRoot) {
     if(conduit == null) {
       return;
     }
@@ -271,7 +280,7 @@ public class ConduitUtil {
     conduitRoot.setTag("conduit", conduitBody);
   }
 
-  public static IConduit readConduitFromNBT(NBTTagCompound conduitRoot, short nbtVersion) {
+  public static IConduit<?> readConduitFromNBT(NBTTagCompound conduitRoot, short nbtVersion) {
     String typeName = conduitRoot.getString("conduitType");
     NBTTagCompound conduitBody = conduitRoot.getCompoundTag("conduit");
     if(typeName == null || conduitBody == null) {
@@ -285,9 +294,9 @@ public class ConduitUtil {
       Log.debug("ConduitUtil.readConduitFromNBT: Converted pre 0.7.3 fluid conduit to advanced fluid conduit.");
       typeName = "crazypants.enderio.conduit.liquid.AdvancedLiquidConduit";
     }
-    IConduit result;
+    IConduit<?> result;
     try {
-      result = (IConduit) Class.forName(typeName).newInstance();
+      result = (IConduit<?>) Class.forName(typeName).newInstance();
     } catch (Exception e) {
       throw new RuntimeException("Could not create an instance of the conduit with name: " + typeName, e);
     }

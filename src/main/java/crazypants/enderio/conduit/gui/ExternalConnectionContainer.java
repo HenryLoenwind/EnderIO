@@ -18,6 +18,7 @@ import com.enderio.core.common.ContainerEnder;
 import com.enderio.core.common.util.ItemUtil;
 
 import crazypants.enderio.EnderIO;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
 import crazypants.enderio.conduit.gui.item.InventoryUpgrades;
 import crazypants.enderio.conduit.item.IItemConduit;
@@ -46,7 +47,7 @@ public class ExternalConnectionContainer extends ContainerEnder<InventoryUpgrade
   final List<GhostBackgroundItemSlot> bgSlots = new ArrayList<GhostBackgroundItemSlot>();
 
   public ExternalConnectionContainer(InventoryPlayer playerInv, IConduitBundle bundle, ForgeDirection dir) {
-    super(playerInv, new InventoryUpgrades(bundle.getConduit(IItemConduit.class), dir));
+    super(playerInv, new InventoryUpgrades((IItemConduit) bundle.getConduit(IItemConduit.class), dir));
     this.itemConduit = bundle.getConduit(IItemConduit.class);
     slotLocations.addAll(playerSlotLocations.values());
 
@@ -140,7 +141,7 @@ public class ExternalConnectionContainer extends ContainerEnder<InventoryUpgrade
     setSlotsVisible(inputVisible, speedUpgradeSlot, speedUpgradeSlot + 1);
     setSlotsVisible(outputVisible, outputFilterUpgradeSlot, outputFilterUpgradeSlot + 1);
     setSlotsVisible(inputVisible || outputVisible, functionUpgradeSlot, functionUpgradeSlot + 1);
-    World world = itemConduit.getBundle().getWorld();
+    World world = ((IConduit) itemConduit).getBundle().getWorld();
     if(world.isRemote) {
       PacketHandler.INSTANCE.sendToServer(new PacketSlotVisibility(inputVisible, outputVisible));
     }

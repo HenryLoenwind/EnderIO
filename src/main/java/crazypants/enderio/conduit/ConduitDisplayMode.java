@@ -46,7 +46,7 @@ public class ConduitDisplayMode {
     }
   }
 
-  private final Class<? extends IConduit> conduitType;
+  private final Class<? extends IConduitType> conduitType;
   private final IWidgetIcon widgetSelected, widgetUnselected;
 
   private String overrideName = null;
@@ -66,7 +66,7 @@ public class ConduitDisplayMode {
    *          The widget to render when this type is unselected.
    */
   public ConduitDisplayMode(String name, IWidgetIcon widgetSelected, IWidgetIcon widgetUnselected) {
-    this(IConduit.class, widgetSelected, widgetUnselected);
+    this(IConduitType.class, widgetSelected, widgetUnselected);
     setName(name);
   }
 
@@ -83,18 +83,19 @@ public class ConduitDisplayMode {
    * @param widgetUnselected
    *          The widget to render when this type is unselected.
    */
-  public ConduitDisplayMode(@Nonnull Class<? extends IConduit> conduitType, IWidgetIcon widgetSelected, IWidgetIcon widgetUnselected) {
+  public ConduitDisplayMode(@Nonnull Class<? extends IConduitType> conduitType, IWidgetIcon widgetSelected,
+      IWidgetIcon widgetUnselected) {
     this.conduitType = conduitType;
     this.widgetSelected = widgetSelected;
     this.widgetUnselected = widgetUnselected;
   }
 
   @Nullable
-  public Class<? extends IConduit> getConduitType() {
+  public Class<? extends IConduitType> getConduitType() {
     return conduitType;
   }
 
-  public boolean renderConduit(Class<? extends IConduit> conduitType) {
+  public boolean renderConduit(Class<? extends IConduitType> conduitType) {
     if (this == ALL) {
       return true;
     } else if (this == NONE) {
@@ -106,7 +107,7 @@ public class ConduitDisplayMode {
 
   @Nonnull
   public String getName() {
-    return overrideName == null ? conduitType.getSimpleName() : overrideName;
+    return "" + (overrideName == null ? conduitType.getSimpleName() : overrideName);
   }
 
   /**
@@ -199,7 +200,7 @@ public class ConduitDisplayMode {
   public static Iterable<ConduitDisplayMode> getRenderableModes() {
     return FluentIterable.from(registrar).filter(new Predicate<ConduitDisplayMode>() {
       @Override
-      public boolean apply(ConduitDisplayMode input) {
+      public boolean apply(@Nullable ConduitDisplayMode input) {
         return input != ALL && input != NONE;
       }
     });

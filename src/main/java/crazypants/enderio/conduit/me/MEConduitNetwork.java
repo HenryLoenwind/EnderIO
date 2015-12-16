@@ -1,11 +1,23 @@
 package crazypants.enderio.conduit.me;
 
-import crazypants.enderio.conduit.AbstractConduitNetwork;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MEConduitNetwork extends AbstractConduitNetwork<IMEConduit, IMEConduit> {
+import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.IConduit;
+
+public class MEConduitNetwork extends AbstractConduitNetwork<IMEConduit, MEConduit> {
 
   public MEConduitNetwork() {
-    super(IMEConduit.class, IMEConduit.class);
+    super(MEConduit.class, IMEConduit.class);
+  }
+
+  @Override
+  public void doNetworkTick() {
+    List<IConduit> tmp = new ArrayList<IConduit>(conduits);
+    for (IConduit conduit : tmp) {
+      conduit.updateEntity();
+    }
   }
 
 }

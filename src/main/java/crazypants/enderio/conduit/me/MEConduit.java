@@ -22,21 +22,25 @@ import com.enderio.core.client.render.IconUtil;
 import com.enderio.core.common.util.BlockCoord;
 
 import cpw.mods.fml.common.Optional.Method;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.AbstractConduit;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.ConduitClientTickHandler;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IClientTickingConduit;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.conduit.TileConduitBundle;
 import crazypants.enderio.conduit.geom.CollidableComponent;
 import crazypants.enderio.tool.ToolUtil;
 
-public class MEConduit extends AbstractConduit implements IMEConduit {
+public class MEConduit extends AbstractConduit<MEConduitNetwork> implements IMEConduit, IClientTickingConduit {
 
-  protected MEConduitNetwork network;
   protected MEConduitGrid grid;
 
   public static IIcon[] coreTextures;
@@ -51,6 +55,7 @@ public class MEConduit extends AbstractConduit implements IMEConduit {
   
   public MEConduit(int itemDamage) {
     isDense = itemDamage == 1;
+    ConduitClientTickHandler.registerConduit(this);
   }
 
   public static void initIcons() {
@@ -81,24 +86,13 @@ public class MEConduit extends AbstractConduit implements IMEConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IMEConduit.class;
   }
 
   @Override
   public ItemStack createItem() {
     return new ItemStack(EnderIO.itemMEConduit, 1, getDamageForState(isDense));
-  }
-
-  @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    this.network = (MEConduitNetwork) network;
-    return true;
   }
 
   @Override
@@ -188,12 +182,12 @@ public class MEConduit extends AbstractConduit implements IMEConduit {
 
   @Override
   @Method(modid = "appliedenergistics2")
-  public void updateEntity(World worldObj) {
+  public void updateEntity() {
     if(grid == null) {
       grid = new MEConduitGrid(this);
     }
 
-    if(getNode() == null && !worldObj.isRemote) {
+    if (getNode() == null) {
       IGridNode node = AEApi.instance().createGridNode(grid);
       if(node != null) {
         node.setPlayerID(playerID);
@@ -201,8 +195,14 @@ public class MEConduit extends AbstractConduit implements IMEConduit {
         getNode().updateState();
       }
     }
+  }
 
-    super.updateEntity(worldObj);
+  @Override
+  @SideOnly(Side.CLIENT)
+  public void updateEntityClient() {
+    if (grid == null) {
+      grid = new MEConduitGrid(this);
+    }
   }
 
   @Override
@@ -288,7 +288,7 @@ public class MEConduit extends AbstractConduit implements IMEConduit {
     for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
       TileEntity te = getLocation().getLocation(dir).getTileEntity(getBundle().getWorld());
       if(te instanceof TileConduitBundle) {
-        IMEConduit cond = ((TileConduitBundle) te).getConduit(IMEConduit.class);
+        IConduit cond = ((TileConduitBundle) te).getConduit(IMEConduit.class);
         if(cond != null) {
           cond.setConnectionMode(dir.getOpposite(), ConnectionMode.IN_OUT);
           ConduitUtil.joinConduits(cond, dir.getOpposite());

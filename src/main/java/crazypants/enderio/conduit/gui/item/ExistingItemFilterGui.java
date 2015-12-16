@@ -21,6 +21,7 @@ import com.enderio.core.common.vecmath.Vector4f;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.gui.GuiExternalConnection;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.filter.ExistingItemFilter;
 import crazypants.enderio.conduit.packet.PacketItemConduitFilter;
 import crazypants.enderio.gui.IconEIO;
@@ -209,12 +210,13 @@ public class ExistingItemFilterGui implements IItemFilterGui {
   }
 
   private void sendSnapshotPacket(PacketExistingItemFilterSnapshot.Opcode opcode) {
-    PacketHandler.INSTANCE.sendToServer(new PacketExistingItemFilterSnapshot(itemConduit, gui.getDir(),isInput,opcode));
+    PacketHandler.INSTANCE.sendToServer(new PacketExistingItemFilterSnapshot((ItemConduit) itemConduit, gui.getDir(), isInput,
+        opcode));
   }
 
   private void sendFilterChange() {
     updateButtons();
-    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter(itemConduit, gui.getDir()));    
+    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter((ItemConduit) itemConduit, gui.getDir()));
   }
 
   @Override

@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import li.cil.oc.api.network.Message;
-import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.*;
 import mekanism.api.gas.Gas;
 import mekanism.api.gas.GasStack;
@@ -69,17 +67,12 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   private int facadeMeta = 0;
   private FacadeType facadeType = FacadeType.BASIC;
 
-  private boolean facadeChanged;
-
   private final List<CollidableComponent> cachedCollidables = new ArrayList<CollidableComponent>();
 
   private final List<CollidableComponent> cachedConnectors = new ArrayList<CollidableComponent>();
 
-  private boolean conduitsDirty = true;
   private boolean collidablesDirty = true;
   private boolean connectorsDirty = true;
-
-  private boolean clientUpdated = false;
 
   private int lightOpacity = -1;
 
@@ -104,7 +97,10 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
 
   @Override
   public void dirty() {
-    conduitsDirty = true;
+    if (!worldObj.isRemote) {
+      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+      markDirty();
+    }
     collidablesDirty = true;
   }
 
@@ -169,7 +165,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     facadeMeta = nbtRoot.getInteger("facadeMeta");
 
     if(worldObj != null && worldObj.isRemote) {
-      clientUpdated = true;
+      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     }
 
     if (MicroblocksUtil.supportMicroblocks()) {
@@ -186,7 +182,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   public void setFacadeId(Block blockID, boolean triggerUpdate) {
     this.facadeId = blockID;
     if(triggerUpdate) {
-      facadeChanged = true;
+      doFacadeChanged();
     }
   }
 
@@ -256,31 +252,12 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   @Override
-  public void doUpdate() {
-    for (IConduit conduit : conduits) {
-      conduit.updateEntity(worldObj);
-    }
-
-    if(conduitsDirty) {
-      doConduitsDirty();
-    }
-
-    if(facadeChanged) {
-      doFacadeChanged();
-    }
-
-    //client side only, check for changes in rendering of the bundle
-    if(worldObj.isRemote) {
-      updateEntityClient();
-    }
+  protected boolean shouldUpdate() {
+    return false;
   }
 
-  private void doConduitsDirty() {
-    if(!worldObj.isRemote) {
-      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-      markDirty();
-    }
-    conduitsDirty = false;
+  @Override
+  public void doUpdate() {
   }
 
   private void doFacadeChanged() {
@@ -290,16 +267,6 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     worldObj.func_147451_t(xCoord, yCoord, zCoord);
     worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
     worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, EnderIO.blockConduitBundle);
-    facadeChanged = false;
-  }
-
-  private void updateEntityClient() {
-    if(clientUpdated) {
-      //TODO: This is not the correct solution here but just marking the block for a render update server side
-      //seems to get out of sync with the client sometimes so connections are not rendered correctly
-      worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-      clientUpdated = false;
-    }
   }
 
   @Override
@@ -360,13 +327,13 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   @Override
-  public boolean hasType(Class<? extends IConduit> type) {
+  public boolean hasType(Class<? extends IConduitType> type) {
     return getConduit(type) != null;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends IConduit> T getConduit(Class<T> type) {
+  public <T extends IConduit, S extends IConduitType> T getConduit(Class<S> type) {
     if(type == null) {
       return null;
     }
@@ -426,7 +393,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   @Override
-  public Set<ForgeDirection> getConnections(Class<? extends IConduit> type) {
+  public Set<ForgeDirection> getConnections(Class<? extends IConduitType> type) {
     IConduit con = getConduit(type);
     if(con != null) {
       return con.getConduitConnections();
@@ -435,7 +402,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   }
 
   @Override
-  public boolean containsConnection(Class<? extends IConduit> type, ForgeDirection dir) {
+  public boolean containsConnection(Class<? extends IConduitType> type, ForgeDirection dir) {
     IConduit con = getConduit(type);
     if(con != null) {
       return con.containsConduitConnection(dir);
@@ -465,7 +432,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   // Geometry
 
   @Override
-  public Offset getOffset(Class<? extends IConduit> type, ForgeDirection dir) {
+  public Offset getOffset(Class<? extends IConduitType> type, ForgeDirection dir) {
     if(getConnectionCount(dir) < 2) {
       return Offset.NONE;
     }
@@ -537,12 +504,12 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
       addConduitCores(conduitsBounds, con);
     }
 
-    Set<Class<IConduit>> collidingTypes = new HashSet<Class<IConduit>>();
+    Set<Class<IConduitType>> collidingTypes = new HashSet<Class<IConduitType>>();
     for (CollidableComponent conCC : conduitsBounds) {
       for (CollidableComponent innerCC : conduitsBounds) {
         if(!InsulatedRedstoneConduit.COLOR_CONTROLLER_ID.equals(innerCC.data) && !InsulatedRedstoneConduit.COLOR_CONTROLLER_ID.equals(conCC.data)
             && conCC != innerCC && conCC.bound.intersects(innerCC.bound)) {
-          collidingTypes.add((Class<IConduit>) conCC.conduitType);
+          collidingTypes.add((Class<IConduitType>) conCC.conduitType);
         }
       }
     }
@@ -550,7 +517,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     //TODO: Remove the core geometries covered up by this as no point in rendering these
     if(!collidingTypes.isEmpty()) {
       List<CollidableComponent> colCores = new ArrayList<CollidableComponent>();
-      for (Class<IConduit> c : collidingTypes) {
+      for (Class<IConduitType> c : collidingTypes) {
         IConduit con = getConduit(c);
         if(con != null) {
           addConduitCores(colCores, con);
@@ -637,9 +604,9 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     connectorsDirty = false;
   }
 
-  private void addConduitCores(List<CollidableComponent> result, IConduit con) {
+  private void addConduitCores(List<CollidableComponent> result, IConduit<?> con) {
     CollidableCache cc = CollidableCache.instance;
-    Class<? extends IConduit> type = con.getCollidableType();
+    Class<? extends IConduitType> type = con.getCollidableType();
     if(con.hasConnections()) {
       for (ForgeDirection dir : con.getExternalConnections()) {
         result.addAll(cc.getCollidables(cc.createKey(type, getOffset(con.getBaseConduitType(), dir), ForgeDirection.UNKNOWN, false), con));
@@ -883,7 +850,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
     if (dir == null || dir == ForgeDirection.UNKNOWN) {
       return (IGridNode) node;
     } else {
-      IMEConduit cond = getConduit(IMEConduit.class);
+      IConduit cond = getConduit(IMEConduit.class);
       if (cond != null) {
         if (cond.getConnectionMode(dir.getOpposite()) == ConnectionMode.IN_OUT) {
           return (IGridNode) node;
@@ -905,7 +872,7 @@ public class TileConduitBundle extends TileEntityEio implements IConduitBundle {
   @Override
   @Method(modid = "appliedenergistics2")
   public AECableType getCableConnectionType(ForgeDirection dir) {
-    IMEConduit cond = getConduit(IMEConduit.class);
+    IConduit cond = getConduit(IMEConduit.class);
     if (cond == null) {
       return AECableType.NONE;
     } else {

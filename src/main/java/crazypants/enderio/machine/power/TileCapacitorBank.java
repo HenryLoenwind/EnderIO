@@ -25,6 +25,7 @@ import com.enderio.core.common.vecmath.VecmathUtil;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.TileEntityEio;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
 import crazypants.enderio.conduit.power.IPowerConduit;
 import crazypants.enderio.config.Config;
@@ -366,7 +367,7 @@ public class TileCapacitorBank extends TileEntityEio implements IInternalPowerHa
           //All other power transfer is handled by the conduit network
           IConduitBundle bundle = (IConduitBundle) receptor.receptor.getDelegate();
           IPowerConduit conduit = bundle.getConduit(IPowerConduit.class);
-          if(conduit != null && conduit.getConnectionMode(receptor.fromDir.getOpposite()) == ConnectionMode.INPUT) {
+          if (conduit != null && ((IConduit) conduit).getConnectionMode(receptor.fromDir.getOpposite()) == ConnectionMode.INPUT) {
             used = powerInterface.recieveEnergy(receptor.fromDir.getOpposite(), canTransmit);
           } else {
             used = 0;

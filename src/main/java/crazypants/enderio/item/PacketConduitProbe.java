@@ -19,11 +19,14 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.Log;
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.TileConduitBundle;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.ItemConduitNetwork;
 import crazypants.enderio.conduit.power.IPowerConduit;
 import crazypants.enderio.conduit.power.NetworkPowerManager;
+import crazypants.enderio.conduit.power.PowerConduit;
 import crazypants.enderio.conduit.power.PowerConduitNetwork;
 import crazypants.enderio.conduit.power.PowerTracker;
 import crazypants.enderio.machine.power.PowerDisplayUtil;
@@ -132,15 +135,15 @@ public class PacketConduitProbe implements IMessage, IMessageHandler<PacketCondu
   public static void sendInfoMessage(EntityPlayer player, TileConduitBundle tcb) {
 
     if(tcb.getConduit(IItemConduit.class) != null) {
-      sendInfoMessage(player, tcb.getConduit(IItemConduit.class), null);
+      sendInfoMessage(player, (ItemConduit) tcb.getConduit(IItemConduit.class), null);
     }
     IPowerConduit conduit = tcb.getConduit(IPowerConduit.class);
     if(conduit != null) {
-      sendInfoMessage(player, conduit);
+      sendInfoMessage(player, (PowerConduit) conduit);
     }
   }
 
-  public static void sendInfoMessage(EntityPlayer player, IPowerConduit conduit) {
+  public static <T extends IConduit & IPowerConduit> void sendInfoMessage(EntityPlayer player, T conduit) {
     PowerConduitNetwork pcn = (PowerConduitNetwork) conduit.getNetwork();
     NetworkPowerManager pm = pcn.getPowerManager();
     PowerTracker tracker = pm.getTracker(conduit);
@@ -151,7 +154,7 @@ public class PacketConduitProbe implements IMessage, IMessageHandler<PacketCondu
     }
   }
 
-  public static void sendInfoMessage(EntityPlayer player, IItemConduit conduit, ItemStack input) {
+  public static <T extends IConduit<?> & IItemConduit> void sendInfoMessage(EntityPlayer player, T conduit, ItemStack input) {
     String color = "\u00A7a ";
     StringBuilder sb = new StringBuilder();
     sb.append(color);

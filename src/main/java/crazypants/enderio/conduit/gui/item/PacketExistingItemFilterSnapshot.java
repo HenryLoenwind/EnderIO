@@ -9,6 +9,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.item.ItemConduitNetwork;
 import crazypants.enderio.conduit.item.NetworkedInventory;
@@ -33,7 +34,8 @@ public class PacketExistingItemFilterSnapshot extends AbstractConduitPacket<IIte
   public PacketExistingItemFilterSnapshot() {
   }
   
-  public PacketExistingItemFilterSnapshot(IItemConduit con, ForgeDirection dir, boolean isInput, Opcode opcode) {
+  public <T extends IConduit & IItemConduit> PacketExistingItemFilterSnapshot(T con, ForgeDirection dir, boolean isInput,
+      Opcode opcode) {
     super(con.getBundle().getEntity(), ConTypeEnum.ITEM);
     this.dir = dir;
     this.isInput= isInput;
@@ -76,7 +78,7 @@ public class PacketExistingItemFilterSnapshot extends AbstractConduitPacket<IIte
         break;
 
       case SET: {
-        ItemConduitNetwork icn = (ItemConduitNetwork)conduit.getNetwork();
+      ItemConduitNetwork icn = (ItemConduitNetwork) ((IConduit) conduit).getNetwork();
         NetworkedInventory inv = icn.getInventory(conduit, message.dir);
         inv.updateInventory();
         filter.setSnapshot(inv);
@@ -84,7 +86,7 @@ public class PacketExistingItemFilterSnapshot extends AbstractConduitPacket<IIte
       }
 
       case MERGE: {
-        ItemConduitNetwork icn = (ItemConduitNetwork)conduit.getNetwork();
+      ItemConduitNetwork icn = (ItemConduitNetwork) ((IConduit) conduit).getNetwork();
         NetworkedInventory inv = icn.getInventory(conduit, message.dir);
         filter.mergeSnapshot(inv);
         break;

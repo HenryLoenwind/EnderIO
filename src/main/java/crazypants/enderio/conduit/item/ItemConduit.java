@@ -30,6 +30,7 @@ import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.conduit.geom.CollidableComponent;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
@@ -38,7 +39,7 @@ import crazypants.enderio.item.PacketConduitProbe;
 import crazypants.enderio.machine.RedstoneControlMode;
 import crazypants.enderio.tool.ToolUtil;
 
-public class ItemConduit extends AbstractConduit implements IItemConduit {
+public class ItemConduit extends AbstractConduit<ItemConduitNetwork> implements IItemConduit {
 
   public static final String EXTERNAL_INTERFACE_GEOM = "ExternalInterface";
 
@@ -85,8 +86,6 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
 
     });
   }
-
-  ItemConduitNetwork network;
 
   protected final EnumMap<ForgeDirection, RedstoneControlMode> extractionModes = new EnumMap<ForgeDirection, RedstoneControlMode>(ForgeDirection.class);
   protected final EnumMap<ForgeDirection, DyeColor> extractionColors = new EnumMap<ForgeDirection, DyeColor>(ForgeDirection.class);
@@ -254,23 +253,23 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
       return item;
     } else if(!getConnectionMode(from).acceptsInput()) {
       return item;
-    } else if(network == null) {
+    } else if (getNetwork() == null) {
       return item;
     } else {
       IItemFilter filter = inputFilters.get(from);
-      ItemConduitNetwork network = (ItemConduitNetwork) getNetwork();
+      ItemConduitNetwork network = getNetwork();
       if(filter != null && !filter.doesItemPassFilter(network.getInventory(this, from.getOpposite()), item)) {
         return item;
       }
     }
-    return network.sendItems(this, item, from);
+    return getNetwork().sendItems(this, item, from);
   }
 
   @Override
   public void setInputFilter(ForgeDirection dir, IItemFilter filter) {
     inputFilters.put(dir, filter);
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
     setClientStateDirty();
   }
@@ -278,8 +277,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   @Override
   public void setOutputFilter(ForgeDirection dir, IItemFilter filter) {
     outputFilters.put(dir, filter);
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
     setClientStateDirty();
   }
@@ -342,8 +341,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
       functionUpgrades.remove(dir);
     }
     setClientStateDirty();
-    if(network != null && hadIPU != hasInventoryPanelUpgrade(dir)) {
-      network.inventoryPanelSourcesChanged();
+    if (getNetwork() != null && hadIPU != hasInventoryPanelUpgrade(dir)) {
+      getNetwork().inventoryPanelSourcesChanged();
     }
   }
 
@@ -421,8 +420,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   @Override
   public void setInputColor(ForgeDirection dir, DyeColor col) {
     inputColors.put(dir, col);
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
     setClientStateDirty();
     collidablesDirty = true;
@@ -431,8 +430,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   @Override
   public void setOutputColor(ForgeDirection dir, DyeColor col) {
     outputColors.put(dir, col);
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
     setClientStateDirty();
     collidablesDirty = true;
@@ -461,10 +460,10 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   @Override
   public void externalConnectionAdded(ForgeDirection direction) {
     super.externalConnectionAdded(direction);
-    if(network != null) {
+    if (getNetwork() != null) {
       TileEntity te = bundle.getEntity();
-      network.inventoryAdded(this, direction, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY, te.zCoord + direction.offsetZ,
-          getExternalInventory(direction));
+      getNetwork().inventoryAdded(this, direction, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY,
+          te.zCoord + direction.offsetZ, getExternalInventory(direction));
     }
   }
 
@@ -486,9 +485,10 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   public void externalConnectionRemoved(ForgeDirection direction) {
     externalConnections.remove(direction);
     connectionsChanged();
-    if(network != null) {
+    if (getNetwork() != null) {
       TileEntity te = bundle.getEntity();
-      network.inventoryRemoved(this, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY, te.zCoord + direction.offsetZ);
+      getNetwork().inventoryRemoved(this, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY,
+          te.zCoord + direction.offsetZ);
     }
   }
 
@@ -499,8 +499,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
       return;
     }
     super.setConnectionMode(dir, mode);
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
   }
 
@@ -520,8 +520,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
     } else {
       selfFeed.put(dir, enabled);
     }
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
   }
 
@@ -541,8 +541,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
     } else {
       roundRobin.put(dir, enabled);
     }
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
   }
 
@@ -562,8 +562,8 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
     } else {
       this.priority.put(dir, priority);
     }
-    if(network != null) {
-      network.routesChanged();
+    if (getNetwork() != null) {
+      getNetwork().routesChanged();
     }
 
   }
@@ -589,7 +589,7 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IItemConduit.class;
   }
 
@@ -597,17 +597,6 @@ public class ItemConduit extends AbstractConduit implements IItemConduit {
   public ItemStack createItem() {
     ItemStack result = new ItemStack(EnderIO.itemItemConduit, 1, metaData);
     return result;
-  }
-
-  @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    this.network = (ItemConduitNetwork) network;
-    return true;
   }
 
   @Override

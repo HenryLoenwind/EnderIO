@@ -8,6 +8,7 @@ import net.minecraft.tileentity.TileEntity;
 
 import com.enderio.core.common.util.BlockCoord;
 
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
 import crazypants.enderio.conduit.TileConduitBundle;
 import crazypants.enderio.conduit.gas.IGasConduit;
@@ -22,12 +23,15 @@ import crazypants.enderio.machine.generator.stirling.TileEntityStirlingGenerator
 public class ClientUtil {
 
   public static void doFluidLevelUpdate(int x, int y, int z, PacketFluidLevel pkt) {
+    if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().theWorld == null) {
+      return;
+    }
     TileEntity tile = Minecraft.getMinecraft().theWorld.getTileEntity(x, y, z);
     if(pkt.tc == null || !(tile instanceof IConduitBundle)) {
       return;
     }
     IConduitBundle bundle = (IConduitBundle) tile;
-    ILiquidConduit con = bundle.getConduit(ILiquidConduit.class);
+    IConduit con = bundle.getConduit(ILiquidConduit.class);
     if(con == null) {
       return;
     }
@@ -35,12 +39,15 @@ public class ClientUtil {
   }
 
   public static void doGasLevelUpdate(int x, int y, int z, PacketGasLevel pkt) {
+    if (Minecraft.getMinecraft() == null || Minecraft.getMinecraft().theWorld == null) {
+      return;
+    }
     TileEntity tile = Minecraft.getMinecraft().theWorld.getTileEntity(x, y, z);
     if(pkt.tc == null || !(tile instanceof IConduitBundle)) {
       return;
     }
     IConduitBundle bundle = (IConduitBundle) tile;
-    IGasConduit con = bundle.getConduit(IGasConduit.class);
+    IConduit con = bundle.getConduit(IGasConduit.class);
     if(con == null) {
       return;
     }

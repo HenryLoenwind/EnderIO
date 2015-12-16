@@ -11,6 +11,7 @@ import com.enderio.core.common.util.DyeColor;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.oc.IOCConduit;
+import crazypants.enderio.conduit.oc.OCConduit;
 import crazypants.enderio.conduit.packet.PacketOCConduitSignalColor;
 import crazypants.enderio.conduit.packet.PacketRedstoneConduitOutputStrength;
 import crazypants.enderio.conduit.packet.PacketRedstoneConduitSignalColor;
@@ -45,7 +46,7 @@ public class OCSettings extends BaseSettingsPanel {
     super.actionPerformed(guiButton);
     if (guiButton.id == ID_COLOR_BUTTON && cb != null) {
       occon.setSignalColor(gui.getDir(), DyeColor.values()[cb.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketOCConduitSignalColor(occon, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketOCConduitSignalColor((OCConduit) occon, gui.getDir()));
     }
   }
 

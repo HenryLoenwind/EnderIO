@@ -15,12 +15,15 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.enderio.core.common.TileEntityEnder;
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.InventoryWrapper;
 import com.enderio.core.common.util.ItemUtil;
 import com.enderio.core.common.util.RoundRobinIterator;
 
 import crazypants.enderio.conduit.ConnectionMode;
+import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.gas.IGasConduit;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
 import crazypants.enderio.config.Config;
 import crazypants.enderio.machine.invpanel.TileInventoryPanel;
@@ -50,7 +53,8 @@ public class NetworkedInventory {
   World world;
   ItemConduitNetwork network;
 
-  NetworkedInventory(ItemConduitNetwork network, IInventory inv, IItemConduit con, ForgeDirection conDir, BlockCoord location) {
+  <T extends IItemConduit & IConduit> NetworkedInventory(ItemConduitNetwork network, IInventory inv, T con, ForgeDirection conDir,
+      BlockCoord location) {
     this.network = network;
     inventorySide = conDir.getOpposite().ordinal();
 
@@ -82,7 +86,7 @@ public class NetworkedInventory {
   }
 
   boolean canExtract() {
-    ConnectionMode mode = con.getConnectionMode(conDir);
+    ConnectionMode mode = ((IConduit) con).getConnectionMode(conDir);
     return mode == ConnectionMode.INPUT || mode == ConnectionMode.IN_OUT;
   }
 
@@ -90,7 +94,7 @@ public class NetworkedInventory {
     if(inventoryPanel) {
       return false;
     }
-    ConnectionMode mode = con.getConnectionMode(conDir);
+    ConnectionMode mode = ((IConduit) con).getConnectionMode(conDir);
     return mode == ConnectionMode.OUTPUT || mode == ConnectionMode.IN_OUT;
   }
 
@@ -118,13 +122,6 @@ public class NetworkedInventory {
       //Sleep for a second before checking again.
       tickDeficit = 20;
     }
-  }
-
-  private boolean canExtractThisTick(long tick) {
-    if(!con.isExtractionRedstoneConditionMet(conDir)) {
-      return false;
-    }
-    return true;
   }
 
   private int nextSlot(int numSlots) {
@@ -310,7 +307,7 @@ public class NetworkedInventory {
       if(!result.isEmpty()) {
         Map<BlockCoord, Integer> visited = new HashMap<BlockCoord, Integer>();
         List<BlockCoord> steps = new ArrayList<BlockCoord>();
-        steps.add(con.getLocation());
+        steps.add(((IConduit) con).getLocation());
         calculateDistances(result, visited, steps, 0);
 
         sendPriority.addAll(result);
@@ -330,7 +327,7 @@ public class NetworkedInventory {
     for (BlockCoord bc : steps) {
       IItemConduit con = network.conMap.get(bc);
       if(con != null) {
-        for (ForgeDirection dir : con.getExternalConnections()) {
+        for (ForgeDirection dir : ((IConduit<?>) con).getExternalConnections()) {
           Target target = getTarget(targets, con, dir);
           if(target != null && target.distance > distance) {
             target.distance = distance;
@@ -347,7 +344,7 @@ public class NetworkedInventory {
           visited.put(bc, distance);
         }
 
-        for (ForgeDirection dir : con.getConduitConnections()) {
+        for (ForgeDirection dir : ((IConduit<?>) con).getConduitConnections()) {
           nextSteps.add(bc.getLocation(dir));
         }
       }
@@ -356,15 +353,15 @@ public class NetworkedInventory {
   }
 
   private Target getTarget(List<Target> targets, IItemConduit con, ForgeDirection dir) {
-    if(targets == null || con == null || con.getLocation() == null) {
+    if (targets == null || con == null || ((IConduit) con).getLocation() == null) {
       return null;
     }
     for (Target target : targets) {
       BlockCoord targetConLoc = null;
       if(target != null && target.inv != null && target.inv.con != null) {
-        targetConLoc = target.inv.con.getLocation();
+        targetConLoc = ((IConduit) target.inv.con).getLocation();
       }
-      if(targetConLoc != null && target.inv.conDir == dir && targetConLoc.equals(con.getLocation())) {
+      if (targetConLoc != null && target != null && target.inv.conDir == dir && targetConLoc.equals(((IConduit) con).getLocation())) {
         return target;
       }
     }
@@ -372,7 +369,7 @@ public class NetworkedInventory {
   }
 
   private int distanceTo(NetworkedInventory other) {
-    return con.getLocation().getDistSq(other.con.getLocation());
+    return ((IConduit) con).getLocation().getDistSq(((IConduit) other.con).getLocation());
   }
 
   public ISidedInventory getInventory() {

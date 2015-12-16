@@ -23,9 +23,12 @@ import com.enderio.core.client.render.RenderUtil;
 import com.enderio.core.common.util.DyeColor;
 
 import crazypants.enderio.EnderIO;
+import crazypants.enderio.conduit.AbstractConduit;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.liquid.AbstractLiquidConduit;
 import crazypants.enderio.conduit.liquid.EnderLiquidConduit;
+import crazypants.enderio.conduit.liquid.EnderLiquidConduitNetwork;
 import crazypants.enderio.conduit.liquid.FluidFilter;
 import crazypants.enderio.conduit.liquid.ILiquidConduit;
 import crazypants.enderio.conduit.packet.PacketExtractMode;
@@ -96,7 +99,7 @@ public class LiquidSettings extends BaseSettingsPanel {
         RedstoneControlMode curMode = getRedstoneControlMode();
         conduit.setExtractionRedstoneMode(mode, gui.getDir());
         if(curMode != mode) {
-          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((AbstractLiquidConduit) conduit, gui.getDir()));
         }
 
       }
@@ -127,7 +130,7 @@ public class LiquidSettings extends BaseSettingsPanel {
     super.actionPerformed(guiButton);
     if(guiButton.id == ID_COLOR_BUTTON) {
       conduit.setExtractionSignalColor(gui.getDir(), DyeColor.values()[colorB.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((AbstractLiquidConduit) conduit, gui.getDir()));
     } else if(guiButton.id == ID_WHITELIST) {
       toggleBlacklist();
     } else if(guiButton.id == NEXT_FILTER_ID) {
@@ -257,13 +260,12 @@ public class LiquidSettings extends BaseSettingsPanel {
   protected void renderCustomOptions(int top, float par1, int par2, int par3) {
     boolean isInput = isInput();
     if(isInput) {
-      int x = gui.getGuiLeft() + gap + gui.getFontRenderer().getStringWidth(autoExtractStr) + gap + 2;
       int y = top;
       gui.getFontRenderer().drawString(autoExtractStr, left, y, ColorUtil.getRGB(Color.DARK_GRAY));
     }
     if(isEnder && isFilterVisible()) {
 
-      if(conduit.getConnectionMode(gui.getDir()) == ConnectionMode.IN_OUT) {
+      if (((IConduit) conduit).getConnectionMode(gui.getDir()) == ConnectionMode.IN_OUT) {
         String inOutStr = inOutShowIn ? EnderIO.lang.localize("gui.conduit.ioMode.input") : EnderIO.lang.localize("gui.conduit.ioMode.output");
         int x = gui.getGuiLeft() + gui.getXSize() - 20 - 5 - gui.getFontRenderer().getStringWidth(inOutStr);
         int y = top;
@@ -309,7 +311,7 @@ public class LiquidSettings extends BaseSettingsPanel {
   }
 
   private boolean isInput() {
-    ConnectionMode mode = conduit.getConnectionMode(gui.getDir());
+    ConnectionMode mode = ((IConduit) conduit).getConnectionMode(gui.getDir());
     return (mode == ConnectionMode.IN_OUT && inOutShowIn) || (mode == ConnectionMode.INPUT);
   }
 
@@ -317,7 +319,7 @@ public class LiquidSettings extends BaseSettingsPanel {
     if(!isEnder) {
       return false;
     }
-    ConnectionMode mode = conduit.getConnectionMode(gui.getDir());
+    ConnectionMode mode = ((IConduit) conduit).getConnectionMode(gui.getDir());
     return mode == ConnectionMode.INPUT || mode == ConnectionMode.OUTPUT || mode == ConnectionMode.IN_OUT;
   }
 

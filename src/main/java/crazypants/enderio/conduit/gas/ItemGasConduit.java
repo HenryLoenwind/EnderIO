@@ -15,6 +15,7 @@ import crazypants.enderio.ModObject;
 import crazypants.enderio.conduit.AbstractItemConduit;
 import crazypants.enderio.conduit.ConduitDisplayMode;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.ItemConduitSubtype;
 import crazypants.enderio.config.Config;
 import crazypants.enderio.gui.IconEIO;
@@ -42,7 +43,7 @@ public class ItemGasConduit extends AbstractItemConduit implements IAdvancedTool
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IGasConduit.class;
   }
 

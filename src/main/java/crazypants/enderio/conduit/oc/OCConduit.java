@@ -45,6 +45,7 @@ import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.conduit.TileConduitBundle;
 import crazypants.enderio.conduit.geom.CollidableComponent;
@@ -58,9 +59,7 @@ import crazypants.enderio.config.Config;
 import crazypants.enderio.item.PacketConduitProbe;
 import crazypants.enderio.tool.ToolUtil;
 
-public class OCConduit extends AbstractConduit implements IOCConduit {
-
-  protected OCConduitNetwork network;
+public class OCConduit extends AbstractConduit<OCConduitNetwork> implements IOCConduit {
 
   private Map<ForgeDirection, DyeColor> signalColors = new HashMap<ForgeDirection, DyeColor>();
 
@@ -181,7 +180,7 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IOCConduit.class;
   }
 
@@ -191,18 +190,13 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
   }
 
   @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
+  public boolean setNetwork(OCConduitNetwork network) {
     if (network == null) {
       for (ForgeDirection dir : getExternalConnections()) {
         disconnectNode(dir);
       }
     }
-    this.network = (OCConduitNetwork) network;
+    super.setNetwork(network);
     addMissingNodeConnections();
     return true;
   }
@@ -286,7 +280,7 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
     } else if (ConduitUtil.isProbeEquipped(player)) {
       if (!player.worldObj.isRemote) {
         BlockCoord bc = getLocation();
-        if (network != null) {
+        if (getNetwork() != null) {
           boolean noconnections = true;
           for (DyeColor color : DyeColor.values()) {
             if (node(color).neighbors().iterator().hasNext()) {
@@ -359,7 +353,7 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
 
   private void addMissingNodeConnections() {
     BlockCoord loc = getLocation();
-    if (loc != null && network != null) {
+    if (loc != null && getNetwork() != null) {
       World world = getBundle().getWorld();
       EnumSet<ForgeDirection> conns = getConnections();
       for (DyeColor color : DyeColor.values()) {
@@ -421,7 +415,7 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
     }
     // Two conduit networks never connect to each other. They join instead.
     Environment otherHost = other.host();
-    if (otherHost instanceof OCConduitNetwork && otherHost != network) {
+    if (otherHost instanceof OCConduitNetwork && otherHost != getNetwork()) {
       node(color).disconnect(other);
       return;
     }
@@ -521,12 +515,12 @@ public class OCConduit extends AbstractConduit implements IOCConduit {
   @Override
   @Method(modid = "OpenComputersAPI|Network")
   public Node node() {
-    return network != null ? network.node(DyeColor.SILVER) : null;
+    return getNetwork() != null ? getNetwork().node(DyeColor.SILVER) : null;
   }
 
   @Method(modid = "OpenComputersAPI|Network")
   public Node node(DyeColor subnet) {
-    return network != null ? network.node(subnet) : null;
+    return getNetwork() != null ? getNetwork().node(subnet) : null;
   }
 
   @Override

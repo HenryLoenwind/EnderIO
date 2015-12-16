@@ -1,7 +1,9 @@
 package crazypants.enderio.conduit.gas;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import mekanism.api.gas.GasStack;
@@ -88,6 +90,11 @@ public class GasConduitNetwork extends AbstractGasTankConduitNetwork<GasConduit>
 
   @Override
   public void doNetworkTick() {
+    List<IConduit> tmp = new ArrayList<IConduit>(conduits);
+    for (IConduit conduit : tmp) {
+      conduit.updateEntity();
+    }
+
     if(gasType == null || outputs.isEmpty() || !tank.containsValidGas() || tank.isEmpty()) {
       updateActiveState();
       return;

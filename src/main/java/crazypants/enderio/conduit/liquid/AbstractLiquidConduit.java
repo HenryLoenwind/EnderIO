@@ -17,14 +17,17 @@ import com.enderio.core.common.util.DyeColor;
 import com.enderio.core.common.util.FluidUtil;
 
 import crazypants.enderio.conduit.AbstractConduit;
+import crazypants.enderio.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.machine.RedstoneControlMode;
 import crazypants.enderio.machine.reservoir.TileReservoir;
 
-public abstract class AbstractLiquidConduit extends AbstractConduit implements ILiquidConduit {
+public abstract class AbstractLiquidConduit<T extends AbstractConduitNetwork<?, ?>> extends AbstractConduit<T> implements
+    ILiquidConduit {
 
   protected final EnumMap<ForgeDirection, RedstoneControlMode> extractionModes = new EnumMap<ForgeDirection, RedstoneControlMode>(ForgeDirection.class);
   protected final EnumMap<ForgeDirection, DyeColor> extractionColors = new EnumMap<ForgeDirection, DyeColor>(ForgeDirection.class);
@@ -65,7 +68,7 @@ public abstract class AbstractLiquidConduit extends AbstractConduit implements I
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return ILiquidConduit.class;
   }
 

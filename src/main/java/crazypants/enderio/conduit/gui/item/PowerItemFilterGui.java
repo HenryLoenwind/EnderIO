@@ -7,6 +7,7 @@ import com.enderio.core.client.gui.button.ToggleButton;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.gui.GuiExternalConnection;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.filter.PowerItemFilter;
 import crazypants.enderio.conduit.packet.PacketItemConduitFilter;
 import crazypants.enderio.gui.IconEIO;
@@ -109,7 +110,7 @@ public class PowerItemFilterGui implements IItemFilterGui {
 
   private void sendFilterChange() {
     updateButtons();
-    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter(itemConduit, gui.getDir()));
+    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter((ItemConduit) itemConduit, gui.getDir()));
   }
 
   @Override

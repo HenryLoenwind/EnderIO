@@ -24,6 +24,8 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.enderio.core.common.util.BlockCoord;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.gas.GasConduitNetwork;
 import crazypants.enderio.conduit.gas.IGasConduit;
@@ -48,7 +50,7 @@ import crazypants.enderio.conduit.power.PowerConduitNetwork;
 import crazypants.enderio.conduit.redstone.IRedstoneConduit;
 import crazypants.enderio.conduit.redstone.RedstoneConduitNetwork;
 
-public abstract class AbstractConduit implements IConduit {
+public abstract class AbstractConduit<N extends AbstractConduitNetwork<?, ?>> implements IConduit<N> {
 
   protected final Set<ForgeDirection> conduitConnections = EnumSet.noneOf(ForgeDirection.class);
 
@@ -64,6 +66,8 @@ public abstract class AbstractConduit implements IConduit {
   // written to the NBT etc
   protected IConduitBundle bundle;
 
+  protected Boolean isRemote = null;
+
   protected boolean active;
 
   protected List<CollidableComponent> collidables;
@@ -73,13 +77,30 @@ public abstract class AbstractConduit implements IConduit {
 
   protected boolean collidablesDirty = true;
 
-  private boolean clientStateDirty = true;
-
   private boolean dodgyChangeSinceLastCallFlagForBundle = true;
 
-  protected boolean connectionsDirty = true;
-
   protected AbstractConduit() {
+  }
+
+  private N network;
+
+  @Override
+  public N getNetwork() {
+    if (network == null && isServer()) {
+      ConduitUtil.ensureValidNetwork(this);
+    }
+    return network;
+  }
+
+  @Override
+  public boolean hasNetwork() {
+    return network != null;
+  }
+
+  @Override
+  public boolean setNetwork(N network) {
+    this.network = network;
+    return true;
   }
 
   @Override
@@ -117,7 +138,7 @@ public abstract class AbstractConduit implements IConduit {
   }
 
   protected NBTTagCompound getNbtRootForType(NBTTagCompound nbt, boolean createIfNull) {
-    Class<? extends IConduit> bt = getBaseConduitType();
+    Class<? extends IConduitType> bt = getBaseConduitType();
     String dataRootName = bt.getSimpleName();
     NBTTagCompound dataRoot = null;
     if (nbt.hasKey(dataRootName)) {
@@ -160,7 +181,7 @@ public abstract class AbstractConduit implements IConduit {
     } else {
       conectionModes.put(dir, mode);
     }
-    clientStateDirty = true;
+    setClientStateDirty();
     collidablesDirty = true;
 
     connectionsChanged();
@@ -227,6 +248,30 @@ public abstract class AbstractConduit implements IConduit {
   @Override
   public IConduitBundle getBundle() {
     return bundle;
+  }
+
+  protected boolean isClient() {
+    if (isRemote == null) {
+      if (bundle != null) {
+        return isRemote = bundle.getWorld().isRemote;
+      } else {
+        return false;
+      }
+    } else {
+      return bundle != null && isRemote;
+    }
+  }
+
+  protected boolean isServer() {
+    if (isRemote == null) {
+      if (bundle != null) {
+        return !(isRemote = bundle.getWorld().isRemote);
+      } else {
+        return false;
+      }
+    } else {
+      return bundle != null && !isRemote;
+    }
   }
 
   // Connections
@@ -331,7 +376,7 @@ public abstract class AbstractConduit implements IConduit {
   @Override
   public void setActive(boolean active) {
     if (active != this.active) {
-      clientStateDirty = true;
+      setClientStateDirty();
     }
     this.active = active;
   }
@@ -419,23 +464,10 @@ public abstract class AbstractConduit implements IConduit {
   }
 
   @Override
-  public void updateEntity(World world) {
-    if (world.isRemote) {
-      return;
-    }
-    updateNetwork(world);
-    updateConnections();
-    if (clientStateDirty && getBundle() != null) {
-      getBundle().dirty();
-      clientStateDirty = false;
-    }
+  public void updateEntity() {
   }
 
   private void updateConnections() {
-    if (!connectionsDirty) {
-      return;
-    }
-
     boolean externalConnectionsChanged = false;
     List<ForgeDirection> copy = new ArrayList<ForgeDirection>(externalConnections);
     // remove any no longer valid connections
@@ -458,32 +490,18 @@ public abstract class AbstractConduit implements IConduit {
     if (externalConnectionsChanged) {
       connectionsChanged();
     }
-
-    connectionsDirty = false;
   }
 
   @Override
   public void connectionsChanged() {
     collidablesDirty = true;
-    clientStateDirty = true;
+    setClientStateDirty();
     dodgyChangeSinceLastCallFlagForBundle = true;
   }
 
   protected void setClientStateDirty() {
-    clientStateDirty = true;
-  }
-
-  protected void updateNetwork(World world) {
-    BlockCoord pos = getLocation();
-    if (getNetwork() == null && world.blockExists(pos.x, pos.y, pos.z)) {
-      ConduitUtil.ensureValidNetwork(this);
-      // TODO figure out if removing this causes anything horrible to happen.
-      // Initial testing shows no difference.
-      // if(getNetwork() != null && !world.isRemote && bundle != null) {
-      // world.notifyBlocksOfNeighborChange(bundle.getEntity().xCoord,
-      // bundle.getEntity().yCoord, bundle.getEntity().zCoord,
-      // bundle.getEntity().getBlockType());
-      // }
+    if (getBundle() != null) {
+      getBundle().dirty();
     }
   }
 
@@ -558,17 +576,17 @@ public abstract class AbstractConduit implements IConduit {
       }
     }
     if (newCons.size() != externalConnections.size()) {
-      connectionsDirty = true;
+      updateConnections();
       return true;
     }
     for (ForgeDirection dir : externalConnections) {
       if (!newCons.remove(dir)) {
-        connectionsDirty = true;
+        updateConnections();
         return true;
       }
     }
     if (!newCons.isEmpty()) {
-      connectionsDirty = true;
+      updateConnections();
       return true;
     }
     return false;
@@ -586,7 +604,7 @@ public abstract class AbstractConduit implements IConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getCollidableType() {
+  public Class<? extends IConduitType> getCollidableType() {
     return getBaseConduitType();
   }
 
@@ -618,7 +636,7 @@ public abstract class AbstractConduit implements IConduit {
 
   private Collection<CollidableComponent> getCollidables(ForgeDirection dir) {
     CollidableCache cc = CollidableCache.instance;
-    Class<? extends IConduit> type = getCollidableType();
+    Class<? extends IConduitType> type = getCollidableType();
     if (isConnectedTo(dir) && getConnectionMode(dir) != ConnectionMode.DISABLED) {
       return cc.getCollidables(cc.createKey(type, getBundle().getOffset(getBaseConduitType(), dir), dir, renderStub(dir)), this);
     }

@@ -31,8 +31,8 @@ public class DefaultConduitRenderer implements ConduitRenderer {
   }
 
   @Override
-  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit conduit, double x, double y, double z, float partialTick,
-      float worldLight, RenderBlocks rb) {
+  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit<?> conduit, double x, double y,
+      double z, float partialTick, float worldLight, RenderBlocks rb) {
 
     Collection<CollidableComponent> components = conduit.getCollidableComponents();
     Tessellator tessellator = Tessellator.instance;
@@ -84,7 +84,6 @@ public class DefaultConduitRenderer implements ConduitRenderer {
       if(conduit.getConnectionMode(component.dir) == ConnectionMode.DISABLED) {
         tex = EnderIO.blockConduitBundle.getConnectorIcon(component.data);
         List<Vertex> corners = component.bound.getCornersWithUvForFace(component.dir, tex.getMinU(), tex.getMaxU(), tex.getMinV(), tex.getMaxV());
-        Tessellator tessellator = Tessellator.instance;
         for (Vertex c : corners) {
           addVecWithUV(c.xyz, c.uv.x, c.uv.y);
         }

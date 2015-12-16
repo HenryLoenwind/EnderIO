@@ -146,7 +146,7 @@ public abstract class AbstractItemConduit extends Item implements IConduitItem {
       return false;
     }
     IConduitBundle bundle = (IConduitBundle) te;
-    IConduit existingConduit = bundle.getConduit(getBaseConduitType());
+    IConduit<?> existingConduit = bundle.getConduit(getBaseConduitType());
     if (existingConduit == null) {
       return false;
     }

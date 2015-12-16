@@ -8,6 +8,7 @@ import com.enderio.core.common.util.DyeColor;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.item.FilterRegister;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
@@ -27,7 +28,7 @@ public class PacketItemConduitFilter extends AbstractConduitPacket<IItemConduit>
   public PacketItemConduitFilter() {
   }
 
-  public PacketItemConduitFilter(IItemConduit con, ForgeDirection dir) {
+  public <S extends IItemConduit & IConduit> PacketItemConduitFilter(S con, ForgeDirection dir) {
     super(con.getBundle().getEntity(), ConTypeEnum.ITEM);
     this.dir = dir;
     loopMode = con.isSelfFeedEnabled(dir);

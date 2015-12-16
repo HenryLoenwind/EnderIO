@@ -31,6 +31,7 @@ import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.conduit.geom.CollidableCache.CacheKey;
 import crazypants.enderio.conduit.geom.CollidableComponent;
@@ -44,7 +45,7 @@ import crazypants.enderio.power.IPowerInterface;
 import crazypants.enderio.power.PowerHandlerUtil;
 import crazypants.enderio.tool.ToolUtil;
 
-public class PowerConduit extends AbstractConduit implements IPowerConduit {
+public class PowerConduit extends AbstractConduit<PowerConduitNetwork> implements IPowerConduit {
 
   static final Map<String, IIcon> ICONS = new HashMap<String, IIcon>();
   
@@ -98,8 +99,6 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
 
   public static final BoundingBox BOUNDS = new BoundingBox(MIN, MAX);
 
-  protected PowerConduitNetwork network;
-
   private int energyStoredRF;
 
   private int subtype;
@@ -122,9 +121,10 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
 
   @Override
   public boolean getConnectionsDirty() {
-    return connectionsDirty;
+    return false;
   }
 
+  @SuppressWarnings("unused")
   @Override
   public boolean onBlockActivated(EntityPlayer player, RaytraceResult res, List<RaytraceResult> all) {
     DyeColor col = DyeColor.getColorFromDye(player.getCurrentEquippedItem());
@@ -278,7 +278,6 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
 
  
   private boolean isRedstoneEnabled(ForgeDirection dir) {
-    boolean result;
     RedstoneControlMode mode = getExtractionRedstoneMode(dir);
     if(mode == RedstoneControlMode.NEVER) {
       return false;
@@ -355,8 +354,8 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
   @Override
   public boolean onNeighborBlockChange(Block blockId) {
     redstoneStateDirty = true;
-    if(network != null && network.powerManager != null) {
-      network.powerManager.receptorsChanged();
+    if (getNetwork() != null && getNetwork().powerManager != null) {
+      getNetwork().powerManager.receptorsChanged();
     }
     return super.onNeighborBlockChange(blockId);
   }
@@ -373,7 +372,7 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
       return 0;
     }
     int freeSpace = getMaxEnergyStored() - getEnergyStored();
-    int result = (int) Math.min(maxReceive, freeSpace);
+    int result = Math.min(maxReceive, freeSpace);
     if(!simulate && result > 0) {
       setEnergyStored(getEnergyStored() + result);      
 
@@ -409,17 +408,6 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
   }
 
   @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    this.network = (PowerConduitNetwork) network;
-    return true;
-  }
-
-  @Override
   public boolean canConnectToExternal(ForgeDirection direction, boolean ignoreDisabled) {
     IPowerInterface rec = getExternalPowerReceptor(direction);
     
@@ -445,19 +433,20 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
   @Override
   public void externalConnectionAdded(ForgeDirection direction) {
     super.externalConnectionAdded(direction);
-    if(network != null) {
+    if (getNetwork() != null) {
       TileEntity te = bundle.getEntity();
-      network.powerReceptorAdded(this, direction, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY, te.zCoord + direction.offsetZ,
-          getExternalPowerReceptor(direction));
+      getNetwork().powerReceptorAdded(this, direction, te.xCoord + direction.offsetX, te.yCoord + direction.offsetY,
+          te.zCoord + direction.offsetZ, getExternalPowerReceptor(direction));
     }
   }
 
   @Override
   public void externalConnectionRemoved(ForgeDirection direction) {
     super.externalConnectionRemoved(direction);
-    if(network != null) {
+    if (getNetwork() != null) {
       TileEntity te = bundle.getEntity();
-      network.powerReceptorRemoved(te.xCoord + direction.offsetX, te.yCoord + direction.offsetY, te.zCoord + direction.offsetZ);
+      getNetwork()
+          .powerReceptorRemoved(te.xCoord + direction.offsetX, te.yCoord + direction.offsetY, te.zCoord + direction.offsetZ);
     }
   }
 
@@ -484,7 +473,7 @@ public class PowerConduit extends AbstractConduit implements IPowerConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IPowerConduit.class;
   }
 

@@ -8,6 +8,7 @@ import com.enderio.core.common.util.DyeColor;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IExtractor;
 import crazypants.enderio.machine.RedstoneControlMode;
 
@@ -20,7 +21,7 @@ public class PacketExtractMode extends AbstractConduitPacket<IExtractor> impleme
   public PacketExtractMode() {
   }
 
-  public PacketExtractMode(IExtractor con, ForgeDirection dir) {
+  public <S extends IExtractor & IConduit> PacketExtractMode(S con, ForgeDirection dir) {
     super(con.getBundle().getEntity(), ConTypeEnum.get(con));
     this.dir = dir;
     mode = con.getExtractionRedstoneMode(dir);

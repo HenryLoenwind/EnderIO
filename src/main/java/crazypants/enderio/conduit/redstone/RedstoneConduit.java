@@ -33,10 +33,11 @@ import crazypants.enderio.conduit.AbstractConduit;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.geom.CollidableComponent;
 import dan200.computercraft.api.ComputerCraftAPI;
 
-public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit {
+public class RedstoneConduit extends AbstractConduit<RedstoneConduitNetwork> implements IRedstoneConduit {
 
   static final Map<String, IIcon> ICONS = new HashMap<String, IIcon>();
 
@@ -60,8 +61,6 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
     });
   }
 
-  protected RedstoneConduitNetwork network;
-
   protected final List<Set<Signal>> externalSignals = new ArrayList<Set<Signal>>();
 
   protected boolean neighbourDirty = true;
@@ -79,19 +78,8 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IRedstoneConduit.class;
-  }
-
-  @Override
-  public AbstractConduitNetwork<IRedstoneConduit, IRedstoneConduit> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    this.network = (RedstoneConduitNetwork) network;
-    return true;
   }
 
   @Override
@@ -101,18 +89,15 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public void updateNetwork() {
-    World world = getBundle().getEntity().getWorldObj();
-    if(world != null) {
-      updateNetwork(world);
-    }
+    getNetwork();
   }
   
   @Override
   public void onChunkUnload(World worldObj) {
-    RedstoneConduitNetwork network = (RedstoneConduitNetwork) getNetwork();
+    RedstoneConduitNetwork network = getNetwork();
     if (network != null) {
       Set<Signal> oldSignals = Sets.newHashSet(network.getSignals());
-      List<IRedstoneConduit> conduits = Lists.newArrayList(network.getConduits());
+      List<RedstoneConduit> conduits = Lists.newArrayList(network.getConduits());
       super.onChunkUnload(worldObj);
       network.afterChunkUnload(conduits, oldSignals);
     }
@@ -130,8 +115,8 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public Set<Signal> getNetworkInputs(ForgeDirection side) {
-    if(network != null) {
-      network.setNetworkEnabled(false);
+    if (getNetwork() != null) {
+      getNetwork().setNetworkEnabled(false);
     }
 
     Set<Signal> res = new HashSet<Signal>();
@@ -178,8 +163,8 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
       }
     }
 
-    if(network != null) {
-      network.setNetworkEnabled(true);
+    if (getNetwork() != null) {
+      getNetwork().setNetworkEnabled(true);
     }
 
     return res;
@@ -192,10 +177,10 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public Set<Signal> getNetworkOutputs(ForgeDirection side) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return Collections.emptySet();
     }
-    return network.getSignals();
+    return getNetwork().getSignals();
   }
 
   @Override
@@ -205,7 +190,7 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
       return false;
     }
     boolean res = super.onNeighborBlockChange(blockId);
-    if(network == null || network.updatingNetwork) {
+    if (!hasNetwork() || getNetwork().updatingNetwork) {
       return false;
     }
     neighbourDirty |= blockId != EnderIO.blockConduitBundle;
@@ -213,11 +198,10 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
   }
 
   @Override
-  public void updateEntity(World world) {
-    super.updateEntity(world);
-    if(!world.isRemote && neighbourDirty) {
-      network.destroyNetwork();
-      updateNetwork(world);
+  public void updateEntity() {
+    if (neighbourDirty) {
+      getNetwork().destroyNetwork();
+      getNetwork();
       neighbourDirty = false;
     }
   }
@@ -267,7 +251,7 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public int isProvidingWeakPower(ForgeDirection toDirection) {
-    if(network == null || !network.isNetworkEnabled()) {
+    if (getNetwork() == null || !getNetwork().isNetworkEnabled()) {
       return 0;
     }
     int result = 0;
@@ -292,14 +276,14 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public String toString() {
-    return "RedstoneConduit [network=" + network + " connections=" + conduitConnections + " active=" + active + "]";
+    return "RedstoneConduit [network=" + getNetwork() + " connections=" + conduitConnections + " active=" + active + "]";
   }
 
   @Override
   public int[] getOutputValues(World world, int x, int y, int z, ForgeDirection side) {
     int[] result = new int[16];
 
-    Set<Signal> outs = network != null ? network.getSignals() : null;
+    Set<Signal> outs = getNetwork() != null ? getNetwork().getSignals() : null;
     if(outs != null) {
       BlockCoord loc = getLocation().getLocation(side);
       for (Signal s : outs) {
@@ -322,7 +306,7 @@ public class RedstoneConduit extends AbstractConduit implements IRedstoneConduit
 
   @Override
   public int getOutputValue(World world, int x, int y, int z, ForgeDirection side, int subnet) {
-    Set<Signal> outs = network != null ? network.getSignals() : null;
+    Set<Signal> outs = getNetwork() != null ? getNetwork().getSignals() : null;
     if(outs != null) {
       BlockCoord loc = getLocation().getLocation(side);
       int color = convertColorForRedNet(subnet);

@@ -35,6 +35,7 @@ import crazypants.enderio.api.redstone.IRedstoneConnectable;
 import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.RaytraceResult;
 import crazypants.enderio.conduit.geom.CollidableCache.CacheKey;
 import crazypants.enderio.conduit.geom.CollidableComponent;
@@ -169,7 +170,7 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
             BlockCoord loc = getLocation().getLocation(faceHit);
             Block id = world.getBlock(loc.x, loc.y, loc.z);
             if(id == EnderIO.blockConduitBundle) {
-              IRedstoneConduit neighbour = ConduitUtil.getConduit(world, loc.x, loc.y, loc.z, IRedstoneConduit.class);
+              IConduit neighbour = ConduitUtil.getConduit(world, loc.x, loc.y, loc.z, IRedstoneConduit.class);
               if(neighbour != null && neighbour.getConnectionMode(faceHit.getOpposite()) == ConnectionMode.DISABLED) {
                 neighbour.setConnectionMode(faceHit.getOpposite(), ConnectionMode.NOT_SET);
               }
@@ -180,8 +181,8 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
             return true;
 
           } else if(externalConnections.contains(connDir)) {
-            if(network != null) {
-              network.destroyNetwork();
+            if (getNetwork() != null) {
+              getNetwork().destroyNetwork();
             }
             externalConnectionRemoved(connDir);
             forceConnectionMode(connDir, ConnectionMode.DISABLED);
@@ -189,10 +190,11 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
 
           } else if(containsConduitConnection(connDir)) {
             BlockCoord loc = getLocation().getLocation(connDir);
-            IRedstoneConduit neighbour = ConduitUtil.getConduit(getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z, IRedstoneConduit.class);
+            IConduit neighbour = ConduitUtil.getConduit(getBundle().getEntity().getWorldObj(), loc.x, loc.y, loc.z,
+                IRedstoneConduit.class);
             if(neighbour != null) {
-              if(network != null) {
-                network.destroyNetwork();
+              if (getNetwork() != null) {
+                getNetwork().destroyNetwork();
               }
               if(neighbour.getNetwork() != null) {
                 neighbour.getNetwork().destroyNetwork();
@@ -202,7 +204,7 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
               neighbour.connectionsChanged();
               connectionsChanged();
               updateNetwork();
-              neighbour.updateNetwork();
+              ((IRedstoneConduit) neighbour).updateNetwork();
               return true;
 
             }
@@ -234,9 +236,9 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
       forcedConnections.put(dir, mode);
       onAddedToBundle();
       Set<Signal> newSignals = getNetworkInputs(dir);
-      if(network != null) {
-        network.addSignals(newSignals);
-        network.notifyNeigborsOfSignals();
+      if (getNetwork() != null) {
+        getNetwork().addSignals(newSignals);
+        getNetwork().notifyNeigborsOfSignals();
       }
 
     } else {
@@ -245,9 +247,9 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
       setConnectionMode(dir, mode);
       forcedConnections.put(dir, mode);
       onAddedToBundle();
-      if(network != null) {
-        network.removeSignals(signals);
-        network.notifyNeigborsOfSignals();
+      if (getNetwork() != null) {
+        getNetwork().removeSignals(signals);
+        getNetwork().notifyNeigborsOfSignals();
       }
 
     }
@@ -275,7 +277,7 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
   }
 
   @Override
-  public Class<? extends IConduit> getCollidableType() {
+  public Class<? extends IConduitType> getCollidableType() {
     return IInsulatedRedstoneConduit.class;
   }
 
@@ -301,10 +303,10 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
     Set<Signal> toRemove = getNetworkInputs(dir);
     signalColors.put(dir, col);
     Set<Signal> toAdd = getNetworkInputs(dir);
-    if(network != null) {
-      network.removeSignals(toRemove);
-      network.addSignals(toAdd);
-      network.notifyNeigborsOfSignals();
+    if (getNetwork() != null) {
+      getNetwork().removeSignals(toRemove);
+      getNetwork().addSignals(toAdd);
+      getNetwork().notifyNeigborsOfSignals();
     }
     setClientStateDirty();
   }
@@ -325,8 +327,8 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
       } else {
         signalStrengths.remove(dir);
       }
-      if(network != null) {
-        network.notifyNeigborsOfSignals();
+      if (getNetwork() != null) {
+        getNetwork().notifyNeigborsOfSignals();
       }
     }
   }
@@ -426,10 +428,10 @@ public class InsulatedRedstoneConduit extends RedstoneConduit implements IInsula
     }
 
     ConnectionMode mode = getConnectionMode(side);
-    if(network == null || mode != ConnectionMode.IN_OUT) {
+    if (getNetwork() == null || mode != ConnectionMode.IN_OUT) {
       return Collections.emptySet();
     }
-    Set<Signal> allSigs = network.getSignals();
+    Set<Signal> allSigs = getNetwork().getSignals();
     if(allSigs.isEmpty()) {
       return allSigs;
     }

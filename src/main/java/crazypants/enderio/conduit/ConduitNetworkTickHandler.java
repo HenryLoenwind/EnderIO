@@ -1,8 +1,10 @@
 package crazypants.enderio.conduit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -59,7 +61,8 @@ public class ConduitNetworkTickHandler {
       h.tickEnd(event);
     }
     listeners.clear();
-    for(AbstractConduitNetwork<?,?> cn : networks.keySet()) {
+    List<AbstractConduitNetwork<?, ?>> tmp = new ArrayList<AbstractConduitNetwork<?, ?>>(networks.keySet());
+    for (AbstractConduitNetwork<?, ?> cn : tmp) {
       cn.doNetworkTick();
     }
   }

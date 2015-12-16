@@ -27,6 +27,7 @@ import crazypants.enderio.conduit.gui.FilterChangeListener;
 import crazypants.enderio.conduit.gui.GuiExternalConnection;
 import crazypants.enderio.conduit.item.FunctionUpgrade;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.filter.ExistingItemFilter;
 import crazypants.enderio.conduit.item.filter.IItemFilter;
 import crazypants.enderio.conduit.item.filter.ItemFilter;
@@ -138,7 +139,7 @@ public class ItemSettings extends BaseSettingsPanel {
         RedstoneControlMode curMode = getRedstoneControlMode();
         itemConduit.setExtractionRedstoneMode(mode, gui.getDir());
         if(curMode != mode) {
-          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(itemConduit, gui.getDir()));
+          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((ItemConduit) itemConduit, gui.getDir()));
         }
 
       }
@@ -309,7 +310,7 @@ public class ItemSettings extends BaseSettingsPanel {
       updateGuiVisibility();
     } else if(guiButton.id == ID_COLOR_BUTTON) {
       itemConduit.setExtractionSignalColor(gui.getDir(), DyeColor.values()[colorB.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(itemConduit, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((ItemConduit) itemConduit, gui.getDir()));
     } else if(guiButton.id == ID_LOOP) {
       itemConduit.setSelfFeedEnabled(gui.getDir(), !itemConduit.isSelfFeedEnabled(gui.getDir()));
       sendFilterChange();
@@ -339,7 +340,7 @@ public class ItemSettings extends BaseSettingsPanel {
   }
 
   private void sendFilterChange() {
-    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter(itemConduit, gui.getDir()));
+    PacketHandler.INSTANCE.sendToServer(new PacketItemConduitFilter((ItemConduit) itemConduit, gui.getDir()));
   }
 
   @Override

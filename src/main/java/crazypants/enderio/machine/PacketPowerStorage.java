@@ -50,10 +50,12 @@ public class PacketPowerStorage implements IMessage, IMessageHandler<PacketPower
   @Override
   public IMessage onMessage(PacketPowerStorage message, MessageContext ctx) {
     EntityPlayer player = EnderIO.proxy.getClientPlayer();
-    TileEntity te = player.worldObj.getTileEntity(message.x, message.y, message.z);
-    if(te instanceof IPowerContainer) {
-      IPowerContainer me = (IPowerContainer) te;
-      me.setEnergyStored(message.storedEnergy);
+    if (player != null && player.worldObj != null) {
+      TileEntity te = player.worldObj.getTileEntity(message.x, message.y, message.z);
+      if (te instanceof IPowerContainer) {
+        IPowerContainer me = (IPowerContainer) te;
+        me.setEnergyStored(message.storedEnergy);
+      }
     }
     return null;
   }

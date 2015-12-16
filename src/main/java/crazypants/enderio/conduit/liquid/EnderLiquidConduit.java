@@ -32,7 +32,7 @@ import crazypants.enderio.conduit.geom.CollidableComponent;
 import crazypants.enderio.machine.RedstoneControlMode;
 import crazypants.enderio.tool.ToolUtil;
 
-public class EnderLiquidConduit extends AbstractLiquidConduit {
+public class EnderLiquidConduit extends AbstractLiquidConduit<EnderLiquidConduitNetwork> {
 
   public static final String ICON_KEY = "enderio:liquidConduitEnder";
   public static final String ICON_CORE_KEY = "enderio:liquidConduitCoreEnder";
@@ -63,7 +63,6 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
     });
   }
 
-  private EnderLiquidConduitNetwork network;
   private int ticksSinceFailedExtract;
 
   private final EnumMap<ForgeDirection, FluidFilter> outputFilters = new EnumMap<ForgeDirection, FluidFilter>(ForgeDirection.class);
@@ -119,11 +118,6 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
     return false;
   }
 
-  @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
   public FluidFilter getFilter(ForgeDirection dir, boolean isInput) {
     if(isInput) {
       return inputFilters.get(dir);
@@ -140,19 +134,13 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
   }
 
   @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    if(network == null) {
-      this.network = null;
-      return true;
+  public boolean setNetwork(EnderLiquidConduitNetwork network) {
+    super.setNetwork(network);
+    if (network != null) {
+      for (ForgeDirection dir : externalConnections) {
+        network.connectionChanged(this, dir);
+      }
     }
-    if(!(network instanceof EnderLiquidConduitNetwork)) {
-      return false;
-    }
-    this.network = (EnderLiquidConduitNetwork) network;
-    for (ForgeDirection dir : externalConnections) {
-      this.network.connectionChanged(this, dir);
-    }
-
     return true;
   }
 
@@ -205,10 +193,10 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
   }
 
   private void refreshConnections(ForgeDirection dir) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return;
     }
-    network.connectionChanged(this, dir);
+    getNetwork().connectionChanged(this, dir);
   }
 
   @Override
@@ -224,20 +212,16 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
   }
 
   @Override
-  public void updateEntity(World world) {
-    super.updateEntity(world);
-    if(world.isRemote) {
-      return;
-    }
+  public void updateEntity() {
+    super.updateEntity();
     doExtract();
   }
 
   private void doExtract() {
-    BlockCoord loc = getLocation();
     if(!hasExtractableMode()) {
       return;
     }
-    if(network == null) {
+    if (getNetwork() == null) {
       return;
     }
 
@@ -250,7 +234,7 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
 
     for (ForgeDirection dir : externalConnections) {
       if(autoExtractForDir(dir)) {
-        if(network.extractFrom(this, dir)) {
+        if (getNetwork().extractFrom(this, dir)) {
           ticksSinceFailedExtract = 0;
         }
       }
@@ -262,15 +246,15 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
 
   @Override
   public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-    if(network == null || !getConnectionMode(from).acceptsInput()) {
+    if (getNetwork() == null || !getConnectionMode(from).acceptsInput()) {
       return 0;
     }
-    return network.fillFrom(this, from, resource, doFill);
+    return getNetwork().fillFrom(this, from, resource, doFill);
   }
 
   @Override
   public boolean canFill(ForgeDirection from, Fluid fluid) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return false;
     }
     return getConnectionMode(from).acceptsInput();
@@ -293,10 +277,10 @@ public class EnderLiquidConduit extends AbstractLiquidConduit {
 
   @Override
   public FluidTankInfo[] getTankInfo(ForgeDirection from) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return new FluidTankInfo[0];
     }
-    return network.getTankInfo(this, from);
+    return getNetwork().getTankInfo(this, from);
   }
   
   @Override

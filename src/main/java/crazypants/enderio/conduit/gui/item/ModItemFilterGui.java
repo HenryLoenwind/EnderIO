@@ -16,6 +16,7 @@ import com.enderio.core.client.render.RenderUtil;
 
 import crazypants.enderio.conduit.gui.GuiExternalConnection;
 import crazypants.enderio.conduit.item.IItemConduit;
+import crazypants.enderio.conduit.item.ItemConduit;
 import crazypants.enderio.conduit.item.filter.ModItemFilter;
 import crazypants.enderio.gui.IconEIO;
 import crazypants.enderio.network.PacketHandler;
@@ -140,7 +141,7 @@ public class ModItemFilterGui implements IItemFilterGui {
 
   private void setMod(int i, ItemStack st) {
     String mod = filter.setMod(i, st);    
-    PacketHandler.INSTANCE.sendToServer(new PacketModItemFilter(itemConduit, gui.getDir(),isInput,i, mod));
+    PacketHandler.INSTANCE.sendToServer(new PacketModItemFilter((ItemConduit) itemConduit, gui.getDir(), isInput, i, mod));
     
   }
 

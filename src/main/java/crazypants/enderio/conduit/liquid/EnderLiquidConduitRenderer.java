@@ -23,8 +23,8 @@ public class EnderLiquidConduitRenderer extends DefaultConduitRenderer {
 
   
   @Override
-  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit conduit, double x, double y, double z, float partialTick,
-      float worldLight, RenderBlocks rb) {
+  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit<?> conduit, double x, double y,
+      double z, float partialTick, float worldLight, RenderBlocks rb) {
     super.renderEntity(conduitBundleRenderer, te, conduit, x, y, z, partialTick, worldLight, rb);
     EnderLiquidConduit pc = (EnderLiquidConduit) conduit;
     for (ForgeDirection dir : conduit.getExternalConnections()) {

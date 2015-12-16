@@ -9,6 +9,7 @@ import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.packet.PacketExtractMode;
 import crazypants.enderio.conduit.power.IPowerConduit;
+import crazypants.enderio.conduit.power.PowerConduit;
 import crazypants.enderio.gui.IconEIO;
 import crazypants.enderio.gui.RedstoneModeButton;
 import crazypants.enderio.machine.IRedstoneModeControlable;
@@ -39,7 +40,7 @@ public class PowerSettings extends BaseSettingsPanel {
         RedstoneControlMode curMode = getRedstoneControlMode();
         conduit.setExtractionRedstoneMode(mode, gui.getDir());
         if(curMode != mode) {
-          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+          PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((PowerConduit) conduit, gui.getDir()));
         }
 
       }
@@ -62,7 +63,7 @@ public class PowerSettings extends BaseSettingsPanel {
     super.actionPerformed(guiButton);
     if(guiButton.id == ID_COLOR_BUTTON) {
       conduit.setExtractionSignalColor(gui.getDir(), DyeColor.values()[colorB.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode(conduit, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketExtractMode((PowerConduit) conduit, gui.getDir()));
     }
   }
 

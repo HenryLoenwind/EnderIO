@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.minecraftforge.common.util.ForgeDirection;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.gas.IGasConduit;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.liquid.ILiquidConduit;
@@ -60,7 +61,7 @@ public class Offsets {
 
   }
 
-  public static Offset get(Class<? extends IConduit> type, ForgeDirection dir) {
+  public static Offset get(Class<? extends IConduitType> type, ForgeDirection dir) {
     Offset res = OFFSETS.get(key(type, getAxisForDir(dir)));
     if(res == null) {
       res = Offset.NONE;
@@ -68,7 +69,7 @@ public class Offsets {
     return res;
   }
 
-  public static OffsetKey key(Class<? extends IConduit> type, Axis axis) {
+  public static OffsetKey key(Class<? extends IConduitType> type, Axis axis) {
     return new OffsetKey(type, axis);
   }
 
@@ -100,7 +101,7 @@ public class Offsets {
     String typeName;
     Axis axis;
 
-    private OffsetKey(Class<? extends IConduit> type, Axis axis) {
+    private OffsetKey(Class<? extends IConduitType> type, Axis axis) {
       this.typeName = type.getCanonicalName();
       this.axis = axis;
     }

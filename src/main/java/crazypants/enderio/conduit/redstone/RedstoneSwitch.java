@@ -58,7 +58,7 @@ public class RedstoneSwitch extends RedstoneConduit {
 
   @Override
   public int isProvidingStrongPower(ForgeDirection toDirection) {
-    if(network == null || !network.isNetworkEnabled()) {
+    if (getNetwork() == null || !getNetwork().isNetworkEnabled()) {
       return 0;
     }
     return isOn ? 15 : 0;
@@ -118,15 +118,15 @@ public class RedstoneSwitch extends RedstoneConduit {
 
   private void toggleSwitch() {
     isOn = !isOn;
-    if(network == null) {
+    if (getNetwork() == null) {
       return;
     }
     TileEntity te = bundle.getEntity();
     Signal signal = new Signal(te.xCoord, te.yCoord, te.zCoord, ForgeDirection.UNKNOWN, 15, DyeColor.RED);
     if(isOn) {
-      network.addSignal(signal);
+      getNetwork().addSignal(signal);
     } else {
-      network.removeSignal(signal);
+      getNetwork().removeSignal(signal);
     }
   }
 

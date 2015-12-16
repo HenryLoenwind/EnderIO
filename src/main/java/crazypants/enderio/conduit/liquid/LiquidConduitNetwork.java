@@ -12,6 +12,7 @@ import net.minecraftforge.fluids.IFluidHandler;
 import com.enderio.core.common.util.BlockCoord;
 
 import crazypants.enderio.conduit.ConduitUtil;
+import crazypants.enderio.conduit.IConduit;
 
 public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidConduit> {
 
@@ -27,10 +28,6 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
   private boolean printFlowTiming = false;
 
   private int lastPushToken = 0;
-
-  private int inputVolume;
-
-  private int outputVolume;
 
   private boolean inputLocked = false;
 
@@ -48,6 +45,7 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
 
   @Override
   public void doNetworkTick() {
+    super.doNetworkTick();
     List<LiquidConduit> cons = getConduits();
     if(cons == null || cons.isEmpty()) {
       return;
@@ -79,14 +77,6 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
         }
       }
     }
-  }
-
-  void addedFromExternal(int res) {
-    inputVolume += res;
-  }
-
-  void outputedToExternal(int filled) {
-    outputVolume += filled;
   }
 
   int getNextPushToken() {
@@ -252,7 +242,6 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
           if(extCon != null) {
             int amount = extCon.fill(dir.getOpposite(), requestSource.copy(), true);
             if(amount > 0) {
-              outputedToExternal(amount);
               tank.addAmount(-amount);
             }
           }
@@ -267,16 +256,13 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
     int totalCapacity = tank.getCapacity();
 
     BlockCoord loc = con.getLocation();
-    Collection<ILiquidConduit> connections =
-        ConduitUtil.getConnectedConduits(con.getBundle().getEntity().getWorldObj(),
-            loc.x, loc.y, loc.z, ILiquidConduit.class);
-    int numTargets = 0;
-    for (ILiquidConduit n : connections) {
+    Collection<IConduit> connections = ConduitUtil.getConnectedConduits(con.getBundle().getEntity().getWorldObj(), loc.x,
+        loc.y, loc.z, ILiquidConduit.class);
+    for (IConduit n : connections) {
       LiquidConduit neighbour = (LiquidConduit) n;
       if(canFlowTo(con, neighbour)) { // can only flow within same network
         totalAmount += neighbour.getTank().getFluidAmount();
         totalCapacity += neighbour.getTank().getCapacity();
-        numTargets++;
       }
     }
 
@@ -288,7 +274,7 @@ public class LiquidConduitNetwork extends AbstractTankConduitNetwork<LiquidCondu
       return; // dont bother with transfers of less than a thousands of a bucket
     }
 
-    for (ILiquidConduit n : connections) {
+    for (IConduit n : connections) {
       LiquidConduit neigbour = (LiquidConduit) n;
       if(canFlowTo(con, neigbour)) { // can only flow within same network
         flowVolume = (int) Math.floor((targetRatio - neigbour.getTank().getFilledRatio()) * neigbour.getTank().getCapacity());

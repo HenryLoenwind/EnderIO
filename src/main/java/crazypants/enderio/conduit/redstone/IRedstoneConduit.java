@@ -8,8 +8,9 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.enderio.core.common.util.DyeColor;
 
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 
-public interface IRedstoneConduit extends IConduit {
+public interface IRedstoneConduit extends IConduitType {
 
   public static final String KEY_CONDUIT_ICON = "enderio:redstoneConduit";
   public static final String KEY_TRANSMISSION_ICON = "enderio:redstoneConduitTransmission";

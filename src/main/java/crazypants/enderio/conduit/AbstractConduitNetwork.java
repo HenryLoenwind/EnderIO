@@ -8,7 +8,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 //I=base type, I is the base class of the implementations accepted by the network 
-public abstract class AbstractConduitNetwork<T extends IConduit, I extends T> {
+public abstract class AbstractConduitNetwork<T extends IConduitType, I extends IConduitType & IConduit> {
 
   protected final List<I> conduits = new ArrayList<I>();
 
@@ -16,6 +16,9 @@ public abstract class AbstractConduitNetwork<T extends IConduit, I extends T> {
   protected final Class<T> baseConduitClass;
 
   protected AbstractConduitNetwork(Class<I> implClass, Class<T> baseConduitClass) {
+    if (!baseConduitClass.isAssignableFrom(implClass)) {
+      throw new java.lang.UnsupportedOperationException();
+    }
     this.implClass = implClass;
     this.baseConduitClass = baseConduitClass;
   }
@@ -28,9 +31,8 @@ public abstract class AbstractConduitNetwork<T extends IConduit, I extends T> {
 
     // Destroy all existing redstone networks around this block
     for (I con : connections) {
-      AbstractConduitNetwork<?, ?> network = con.getNetwork();
-      if(network != null) {
-        network.destroyNetwork();
+      if (con.hasNetwork()) {
+        con.getNetwork().destroyNetwork();
       }
     }
     setNetwork(world, tile);
@@ -43,14 +45,14 @@ public abstract class AbstractConduitNetwork<T extends IConduit, I extends T> {
 
   protected void setNetwork(World world, IConduitBundle tile) {
 
-    T conduit = tile.getConduit(getBaseConduitType());
+    I conduit = tile.getConduit(getBaseConduitType());
 
     if(conduit != null && implClass.isAssignableFrom(conduit.getClass()) && conduit.setNetwork(this)) {
       addConduit(implClass.cast(conduit));
       TileEntity te = tile.getEntity();
-      Collection<T> connections = ConduitUtil.getConnectedConduits(world, te.xCoord, te.yCoord, te.zCoord, getBaseConduitType());
-      for (T con : connections) {
-        if(con.getNetwork() == null) {
+      Collection<I> connections = ConduitUtil.getConnectedConduits(world, te.xCoord, te.yCoord, te.zCoord, getBaseConduitType());
+      for (I con : connections) {
+        if (!con.hasNetwork()) {
           setNetwork(world, con.getBundle());
         } else if(con.getNetwork() != this) {
           con.getNetwork().destroyNetwork();
@@ -70,8 +72,9 @@ public abstract class AbstractConduitNetwork<T extends IConduit, I extends T> {
   }
 
   public void destroyNetwork() {
-    for (I con : conduits) {
-      con.setNetwork(null);
+    List<I> tmp = new ArrayList<I>(conduits);
+    for (I conduit : tmp) {
+      conduit.setNetwork(null);
     }
     conduits.clear();
     ConduitNetworkTickHandler.instance.unregisterNetwork(this);

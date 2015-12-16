@@ -28,8 +28,8 @@ public class PowerConduitRenderer extends DefaultConduitRenderer {
   }
 
   @Override
-  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit conduit, double x, double y, double z, float partialTick,
-      float worldLight, RenderBlocks rb) {
+  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit<?> conduit, double x, double y,
+      double z, float partialTick, float worldLight, RenderBlocks rb) {
     super.renderEntity(conduitBundleRenderer, te, conduit, x, y, z, partialTick, worldLight, rb);
 
     if(!conduit.hasConnectionMode(ConnectionMode.INPUT) && !conduit.hasConnectionMode(ConnectionMode.OUTPUT)) {
@@ -55,14 +55,13 @@ public class PowerConduitRenderer extends DefaultConduitRenderer {
   protected void renderConduit(IIcon tex, IConduit conduit, CollidableComponent component, float selfIllum) {
     if(IPowerConduit.COLOR_CONTROLLER_ID.equals(component.data)) {
       IPowerConduit pc = (IPowerConduit) conduit;
-      ConnectionMode conMode = pc.getConnectionMode(component.dir);
+      ConnectionMode conMode = ((IConduit) pc).getConnectionMode(component.dir);
       if(conduit.containsExternalConnection(component.dir) && pc.getExtractionRedstoneMode(component.dir) != RedstoneControlMode.IGNORE
           && conMode != ConnectionMode.DISABLED) {
         int c = ((IPowerConduit) conduit).getExtractionSignalColor(component.dir).getColor();
         Tessellator tessellator = Tessellator.instance;
         tessellator.setColorOpaque_I(c);
 
-        Offset offset = conduit.getBundle().getOffset(IPowerConduit.class, component.dir);
         BoundingBox bound = component.bound;
         if(conMode != ConnectionMode.IN_OUT) {
           Vector3d trans = ForgeDirectionOffsets.offsetScaled(component.dir, -0.075);

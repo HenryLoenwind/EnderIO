@@ -19,12 +19,13 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import crazypants.enderio.EnderIO;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
+import crazypants.enderio.conduit.ConduitUtil;
 import crazypants.enderio.conduit.ConnectionMode;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.geom.CollidableComponent;
 import crazypants.enderio.config.Config;
 
-public class GasConduit extends AbstractGasTankConduit {
+public class GasConduit extends AbstractGasTankConduit<GasConduitNetwork> {
 
   public static final int CONDUIT_VOLUME = 1000;
 
@@ -57,8 +58,6 @@ public class GasConduit extends AbstractGasTankConduit {
     });
   }
 
-  private GasConduitNetwork network;
-
   private long ticksSinceFailedExtract = 0;
 
   public static final int MAX_EXTRACT_PER_TICK = Config.gasConduitExtractRate;
@@ -70,11 +69,7 @@ public class GasConduit extends AbstractGasTankConduit {
   }
 
   @Override
-  public void updateEntity(World world) {
-    super.updateEntity(world);
-    if(world.isRemote) {
-      return;
-    }
+  public void updateEntity() {
     doExtract();
     if(stateDirty) {
       getBundle().dirty();
@@ -83,11 +78,10 @@ public class GasConduit extends AbstractGasTankConduit {
   }
 
   private void doExtract() {
-    BlockCoord loc = getLocation();
     if(!hasConnectionMode(ConnectionMode.INPUT)) {
       return;
     }
-    if(network == null) {
+    if (getNetwork() == null) {
       return;
     }
 
@@ -98,10 +92,9 @@ public class GasConduit extends AbstractGasTankConduit {
       return;
     }
 
-    Gas f = tank.getGas() == null ? null : tank.getGas().getGas();
     for (ForgeDirection dir : externalConnections) {
       if(autoExtractForDir(dir)) {
-        if(network.extractFrom(this, dir, MAX_EXTRACT_PER_TICK)) {
+        if (getNetwork().extractFrom(this, dir, MAX_EXTRACT_PER_TICK)) {
           ticksSinceFailedExtract = 0;
         }
       }
@@ -112,8 +105,8 @@ public class GasConduit extends AbstractGasTankConduit {
   @Override
   protected void updateTank() {
     tank.setCapacity(CONDUIT_VOLUME);
-    if(network != null) {
-      network.updateConduitVolumes();
+    if (getNetwork() != null) {
+      getNetwork().updateConduitVolumes();
     }
   }
 
@@ -123,29 +116,17 @@ public class GasConduit extends AbstractGasTankConduit {
   }
 
   @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    if(network == null) {
-      this.network = null;
-      return true;
+  public boolean setNetwork(GasConduitNetwork network) {
+    if (network != null) {
+      if (tank.getGas() == null) {
+        tank.setGas(network.getGasType() == null ? null : network.getGasType().copy());
+      } else if (network.getGasType() == null) {
+        network.setGasType(tank.getGas());
+      } else if (!tank.getGas().isGasEqual(network.getGasType())) {
+        return false;
+      }
     }
-    if(!(network instanceof GasConduitNetwork)) {
-      return false;
-    }
-
-    GasConduitNetwork n = (GasConduitNetwork) network;
-    if(tank.getGas() == null) {
-      tank.setGas(n.getGasType() == null ? null : n.getGasType().copy());
-    } else if(n.getGasType() == null) {
-      n.setGasType(tank.getGas());
-    } else if(!tank.getGas().isGasEqual(n.getGasType())) {
-      return false;
-    }
-    this.network = n;
+    super.setNetwork(network);
     return true;
 
   }
@@ -171,13 +152,13 @@ public class GasConduit extends AbstractGasTankConduit {
   }
 
   private void refreshInputs(ForgeDirection dir) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return;
     }
     GasOutput lo = new GasOutput(getLocation().getLocation(dir), dir.getOpposite());
-    network.removeInput(lo);
+    getNetwork().removeInput(lo);
     if(getConnectionMode(dir).acceptsOutput() && containsExternalConnection(dir)) {
-      network.addInput(lo);
+      getNetwork().addInput(lo);
     }
   }
 
@@ -233,10 +214,10 @@ public class GasConduit extends AbstractGasTankConduit {
   @Override
   @Method(modid = GasUtil.API_NAME)
   public int receiveGas(ForgeDirection side, GasStack stack, boolean doTransfer) {
-    if(network == null || !getConnectionMode(side).acceptsInput()) {
+    if (getNetwork() == null || !getConnectionMode(side).acceptsInput()) {
       return 0;
     }
-    return network.fill(side, stack, doTransfer);
+    return getNetwork().fill(side, stack, doTransfer);
   }
 
   @Override
@@ -249,16 +230,16 @@ public class GasConduit extends AbstractGasTankConduit {
   @Override
   @Method(modid = GasUtil.API_NAME)
   public GasStack drawGas(ForgeDirection side, int amount, boolean doTransfer) {
-    if(network == null || !getConnectionMode(side).acceptsOutput()) {
+    if (getNetwork() == null || !getConnectionMode(side).acceptsOutput()) {
       return null;
     }
-    return network.drain(side, amount, doTransfer);
+    return getNetwork().drain(side, amount, doTransfer);
   }
 
   @Override
   @Method(modid = GasUtil.API_NAME)
   public boolean canReceiveGas(ForgeDirection from, Gas gas) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return false;
     }
     return getConnectionMode(from).acceptsInput() && GasConduitNetwork.areGassCompatable(getGasType(), new GasStack(gas, 0));
@@ -267,7 +248,7 @@ public class GasConduit extends AbstractGasTankConduit {
   @Override
   @Method(modid = GasUtil.API_NAME)
   public boolean canDrawGas(ForgeDirection from, Gas gas) {
-    if(network == null) {
+    if (getNetwork() == null) {
       return false;
     }
     return getConnectionMode(from).acceptsOutput() && GasConduitNetwork.areGassCompatable(getGasType(), new GasStack(gas, 0));
@@ -280,6 +261,6 @@ public class GasConduit extends AbstractGasTankConduit {
 
   @Override
   public AbstractGasTankConduitNetwork<? extends AbstractGasTankConduit> getTankNetwork() {
-    return network;
+    return getNetwork();
   }
 }

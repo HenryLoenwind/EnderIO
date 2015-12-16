@@ -32,8 +32,8 @@ public class GasConduitRenderer extends DefaultConduitRenderer {
   }
 
   @Override
-  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit conduit, double x, double y, double z, float partialTick,
-      float worldLight, RenderBlocks rb) {
+  public void renderEntity(ConduitBundleRenderer conduitBundleRenderer, IConduitBundle te, IConduit<?> conduit, double x, double y,
+      double z, float partialTick, float worldLight, RenderBlocks rb) {
     super.renderEntity(conduitBundleRenderer, te, conduit, x, y, z, partialTick, worldLight, rb);
 
     if(!conduit.hasConnectionMode(ConnectionMode.INPUT) && !conduit.hasConnectionMode(ConnectionMode.OUTPUT)) {
@@ -118,7 +118,6 @@ public class GasConduitRenderer extends DefaultConduitRenderer {
       if(conduit.getConnectionMode(component.dir) == ConnectionMode.DISABLED) {
         tex = EnderIO.blockConduitBundle.getConnectorIcon(component.data);
         List<Vertex> corners = component.bound.getCornersWithUvForFace(component.dir, tex.getMinU(), tex.getMaxU(), tex.getMinV(), tex.getMaxV());
-        Tessellator tessellator = Tessellator.instance;
         for (Vertex c : corners) {
           addVecWithUV(c.xyz, c.uv.x, c.uv.y);
         }

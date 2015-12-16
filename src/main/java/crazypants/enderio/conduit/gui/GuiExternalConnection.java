@@ -23,6 +23,7 @@ import com.enderio.core.client.render.RenderUtil;
 import cpw.mods.fml.common.Optional;
 import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.IConduitBundle;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.gas.IGasConduit;
 import crazypants.enderio.conduit.item.IItemConduit;
 import crazypants.enderio.conduit.liquid.ILiquidConduit;
@@ -43,7 +44,7 @@ public class GuiExternalConnection extends GuiContainerBaseEIO {
     return nextButtonId++;
   }
 
-  private static final Map<Class<? extends IConduit>, Integer> TAB_ORDER = new HashMap<Class<? extends IConduit>, Integer>();
+  private static final Map<Class<? extends IConduitType>, Integer> TAB_ORDER = new HashMap<Class<? extends IConduitType>, Integer>();
   static {
     TAB_ORDER.put(IItemConduit.class, 0);
     TAB_ORDER.put(ILiquidConduit.class, 1);

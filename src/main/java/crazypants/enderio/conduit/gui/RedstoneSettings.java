@@ -14,6 +14,7 @@ import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.packet.PacketRedstoneConduitOutputStrength;
 import crazypants.enderio.conduit.packet.PacketRedstoneConduitSignalColor;
 import crazypants.enderio.conduit.redstone.IInsulatedRedstoneConduit;
+import crazypants.enderio.conduit.redstone.InsulatedRedstoneConduit;
 import crazypants.enderio.gui.IconEIO;
 import crazypants.enderio.network.PacketHandler;
 
@@ -63,10 +64,10 @@ public class RedstoneSettings extends BaseSettingsPanel {
     super.actionPerformed(guiButton);
     if(guiButton.id == ID_COLOR_BUTTON && cb != null) {
       insCon.setSignalColor(gui.getDir(), DyeColor.values()[cb.getColorIndex()]);
-      PacketHandler.INSTANCE.sendToServer(new PacketRedstoneConduitSignalColor(insCon, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketRedstoneConduitSignalColor((InsulatedRedstoneConduit) insCon, gui.getDir()));
     } else if(guiButton.id == ID_STRONG_BUTTON && strongCB != null) {
       insCon.setOutputStrength(gui.getDir(), strongCB.isSelected());
-      PacketHandler.INSTANCE.sendToServer(new PacketRedstoneConduitOutputStrength(insCon, gui.getDir()));
+      PacketHandler.INSTANCE.sendToServer(new PacketRedstoneConduitOutputStrength((InsulatedRedstoneConduit) insCon, gui.getDir()));
     }
   }
 

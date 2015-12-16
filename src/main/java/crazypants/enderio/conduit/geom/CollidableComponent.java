@@ -5,15 +5,16 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.enderio.core.client.render.BoundingBox;
 
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 
 public class CollidableComponent {
 
-  public final Class<? extends IConduit> conduitType;
+  public final Class<? extends IConduitType> conduitType;
   public final BoundingBox bound;
   public final ForgeDirection dir;
   public final Object data;
 
-  public CollidableComponent(Class<? extends IConduit> conduitType, BoundingBox bound, ForgeDirection id, Object data) {
+  public CollidableComponent(Class<? extends IConduitType> conduitType, BoundingBox bound, ForgeDirection id, Object data) {
     this.conduitType = conduitType;
     this.bound = bound;
     this.dir = id;

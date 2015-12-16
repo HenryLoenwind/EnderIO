@@ -8,6 +8,7 @@ import com.enderio.core.common.util.DyeColor;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.oc.IOCConduit;
 import crazypants.enderio.conduit.redstone.IInsulatedRedstoneConduit;
 
@@ -20,7 +21,7 @@ public class PacketOCConduitSignalColor extends AbstractConduitPacket<IOCConduit
   public PacketOCConduitSignalColor() {
   }
 
-  public PacketOCConduitSignalColor(IOCConduit con, ForgeDirection dir) {
+  public <S extends IOCConduit & IConduit> PacketOCConduitSignalColor(S con, ForgeDirection dir) {
     super(con.getBundle().getEntity(), ConTypeEnum.OC);
     this.dir = dir;
     col = con.getSignalColor(dir);

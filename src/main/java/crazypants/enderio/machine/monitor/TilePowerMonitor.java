@@ -10,6 +10,7 @@ import crazypants.enderio.EnderIO;
 import crazypants.enderio.ModObject;
 import crazypants.enderio.conduit.AbstractConduitNetwork;
 import crazypants.enderio.conduit.ConduitUtil;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.power.IPowerConduit;
 import crazypants.enderio.conduit.power.NetworkPowerManager;
 import crazypants.enderio.conduit.power.PowerConduitNetwork;
@@ -216,7 +217,7 @@ public class TilePowerMonitor extends AbstractPowerConsumerEntity implements IIn
     for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
       IPowerConduit con = ConduitUtil.getConduit(worldObj, this, dir, IPowerConduit.class);
       if(con != null) {
-        AbstractConduitNetwork<?, ?> n = con.getNetwork();
+        AbstractConduitNetwork<?, ?> n = ((IConduit<?>) con).getNetwork();
         if(n instanceof PowerConduitNetwork) {
           NetworkPowerManager pm = ((PowerConduitNetwork) n).getPowerManager();
           if(pm != null) {

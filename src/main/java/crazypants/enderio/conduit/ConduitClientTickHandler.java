@@ -21,6 +21,7 @@ public class ConduitClientTickHandler {
   public static final ConduitClientTickHandler instance = new ConduitClientTickHandler();
 
   private static final Map<IConduitBundle, Boolean> conduits = new WeakHashMap<IConduitBundle, Boolean>();
+  private static final Map<IClientTickingConduit, Boolean> tickingConduits = new WeakHashMap<IClientTickingConduit, Boolean>();
 
   private ConduitClientTickHandler() {
     FMLCommonHandler.instance().bus().register(this);
@@ -59,6 +60,9 @@ public class ConduitClientTickHandler {
         }
       }
     }
+    for (IClientTickingConduit conduit : tickingConduits.keySet()) {
+      conduit.updateEntityClient();
+    }
   }
 
   /**
@@ -83,6 +87,13 @@ public class ConduitClientTickHandler {
   public static void registerConduit(IConduitBundle te) {
     instance.conduits.put(te, null);
     instance.welcomeConduit(te);
+    if (te instanceof IClientTickingConduit) {
+
+    }
+  }
+
+  public static void registerConduit(IClientTickingConduit conduit) {
+    instance.tickingConduits.put(conduit, null);
   }
 
 }

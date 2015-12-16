@@ -5,6 +5,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import crazypants.enderio.conduit.IConduit;
 import crazypants.enderio.conduit.redstone.IInsulatedRedstoneConduit;
 
 public class PacketRedstoneConduitOutputStrength extends AbstractConduitPacket<IInsulatedRedstoneConduit> implements
@@ -16,7 +17,7 @@ public class PacketRedstoneConduitOutputStrength extends AbstractConduitPacket<I
   public PacketRedstoneConduitOutputStrength() {
   }
 
-  public PacketRedstoneConduitOutputStrength(IInsulatedRedstoneConduit con, ForgeDirection dir) {
+  public <S extends IInsulatedRedstoneConduit & IConduit> PacketRedstoneConduitOutputStrength(S con, ForgeDirection dir) {
     super(con.getBundle().getEntity(), ConTypeEnum.REDSTONE);
     this.dir = dir;
     isStrong = con.isOutputStrong(dir);

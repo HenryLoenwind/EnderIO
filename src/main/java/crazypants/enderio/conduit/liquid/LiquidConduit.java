@@ -32,7 +32,7 @@ import crazypants.enderio.conduit.geom.CollidableComponent;
 import crazypants.enderio.config.Config;
 import crazypants.enderio.network.PacketHandler;
 
-public class LiquidConduit extends AbstractTankConduit {
+public class LiquidConduit extends AbstractTankConduit<LiquidConduitNetwork> {
 
   static final int VOLUME_PER_CONNECTION = FluidContainerRegistry.BUCKET_VOLUME / 4;
 
@@ -69,8 +69,6 @@ public class LiquidConduit extends AbstractTankConduit {
     });
   }
 
-  private LiquidConduitNetwork network;
-
   private float lastSyncRatio = -99;
 
   private int currentPushToken;
@@ -88,11 +86,8 @@ public class LiquidConduit extends AbstractTankConduit {
   private long ticksSinceFailedExtract = 0;
 
   @Override
-  public void updateEntity(World world) {
-    super.updateEntity(world);
-    if(world.isRemote) {
-      return;
-    }
+  public void updateEntity() {
+    super.updateEntity();
     filledFromThisTick.clear();
     updateStartPushDir();
     doExtract();
@@ -102,12 +97,13 @@ public class LiquidConduit extends AbstractTankConduit {
       stateDirty = false;
       lastSyncRatio = tank.getFilledRatio();
 
-    } else if((lastSyncRatio != tank.getFilledRatio() && world.getTotalWorldTime() % 2 == 0)) {
+    } else if ((lastSyncRatio != tank.getFilledRatio() && getBundle().getWorld().getTotalWorldTime() % 2 == 0)) {
 
       //need to send a custom packet as we don't want want to trigger a full chunk update, just
       //need to get the required  values to the entity renderer
       BlockCoord loc = getLocation();
-      PacketHandler.INSTANCE.sendToAllAround(new PacketFluidLevel(this), new TargetPoint(world.provider.dimensionId, loc.x, loc.y, loc.z, 64));
+      PacketHandler.INSTANCE.sendToAllAround(new PacketFluidLevel(this), new TargetPoint(
+          getBundle().getWorld().provider.dimensionId, loc.x, loc.y, loc.z, 64));
       lastSyncRatio = tank.getFilledRatio();
     }
   }
@@ -145,10 +141,10 @@ public class LiquidConduit extends AbstractTankConduit {
 
           FluidStack couldDrain = extTank.drain(dir.getOpposite(), MAX_EXTRACT_PER_TICK, false);
           if(couldDrain != null && couldDrain.amount > 0 && canFill(dir, couldDrain.getFluid())) {
-            int used = pushLiquid(dir, couldDrain, true, network == null ? -1 : network.getNextPushToken());
+            int used = pushLiquid(dir, couldDrain, true, getNetwork() == null ? -1 : getNetwork().getNextPushToken());
             extTank.drain(dir.getOpposite(), used, true);
-            if(used > 0 && network != null && network.getFluidType() == null) {
-              network.setFluidType(couldDrain);
+            if (used > 0 && getNetwork() != null && getNetwork().getFluidType() == null) {
+              getNetwork().setFluidType(couldDrain);
             }
             if(used > 0) {
               ticksSinceFailedExtract = 0;
@@ -163,7 +159,7 @@ public class LiquidConduit extends AbstractTankConduit {
   @Override
   public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
 
-    if(network == null || resource == null) {
+    if (getNetwork() == null || resource == null) {
       return 0;
     }
     if(!canFill(from, resource.getFluid())) {
@@ -177,18 +173,15 @@ public class LiquidConduit extends AbstractTankConduit {
       return 0;
     }
 
-    if(network.lockNetworkForFill()) {
+    if (getNetwork().lockNetworkForFill()) {
       if(doFill) {
         filledFromThisTick.add(getLocation().getLocation(from));
       }
       try {
-        int res = fill(from, resource, doFill, true, network == null ? -1 : network.getNextPushToken());
-        if(doFill && externalConnections.contains(from) && network != null) {
-          network.addedFromExternal(res);
-        }
+        int res = fill(from, resource, doFill, true, getNetwork() == null ? -1 : getNetwork().getNextPushToken());
         return res;
       } finally {
-        network.unlockNetworkFromFill();
+        getNetwork().unlockNetworkFromFill();
 
       }
     } else {
@@ -206,11 +199,11 @@ public class LiquidConduit extends AbstractTankConduit {
       return 0;
     }
 
-    if(network == null) {
+    if (getNetwork() == null) {
       return 0;
     }
-    if(network.canAcceptLiquid(resource)) {
-      network.setFluidType(resource);
+    if (getNetwork().canAcceptLiquid(resource)) {
+      getNetwork().setFluidType(resource);
     } else {
       return 0;
     }
@@ -243,7 +236,7 @@ public class LiquidConduit extends AbstractTankConduit {
   }
 
   private int pushLiquid(ForgeDirection from, FluidStack pushStack, boolean doPush, int token) {
-    if(token == currentPushToken || pushStack == null || pushStack.amount <= 0 || network == null) {
+    if (token == currentPushToken || pushStack == null || pushStack.amount <= 0 || getNetwork() == null) {
       return 0;
     }
     currentPushToken = token;
@@ -272,9 +265,6 @@ public class LiquidConduit extends AbstractTankConduit {
             int toExt = con.fill(dir.getOpposite(), toPush, doPush);
             toPush.amount -= toExt;
             pushed += toExt;
-            if(doPush) {
-              network.outputedToExternal(toExt);
-            }
           }
         }
       }
@@ -347,29 +337,17 @@ public class LiquidConduit extends AbstractTankConduit {
   }
 
   @Override
-  public AbstractConduitNetwork<?, ?> getNetwork() {
-    return network;
-  }
-
-  @Override
-  public boolean setNetwork(AbstractConduitNetwork<?, ?> network) {
-    if(network == null) {
-      this.network = null;
-      return true;
+  public boolean setNetwork(LiquidConduitNetwork network) {
+    if (network != null) {
+      if (tank.getFluid() == null) {
+        tank.setLiquid(network.getFluidType() == null ? null : network.getFluidType().copy());
+      } else if (network.getFluidType() == null) {
+        network.setFluidType(tank.getFluid());
+      } else if (!tank.getFluid().isFluidEqual(network.getFluidType())) {
+        return false;
+      }
     }
-    if(!(network instanceof AbstractTankConduitNetwork)) {
-      return false;
-    }
-
-    AbstractTankConduitNetwork n = (AbstractTankConduitNetwork) network;
-    if(tank.getFluid() == null) {
-      tank.setLiquid(n.getFluidType() == null ? null : n.getFluidType().copy());
-    } else if(n.getFluidType() == null) {
-      n.setFluidType(tank.getFluid());
-    } else if(!tank.getFluid().isFluidEqual(n.getFluidType())) {
-      return false;
-    }
-    this.network = (LiquidConduitNetwork) network;
+    super.setNetwork(network);
     return true;
   }
 
@@ -430,7 +408,7 @@ public class LiquidConduit extends AbstractTankConduit {
 
   @Override
   public AbstractTankConduitNetwork<? extends AbstractTankConduit> getTankNetwork() {
-    return network;
+    return getNetwork();
   }
 
 }

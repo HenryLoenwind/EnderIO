@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import crazypants.enderio.ModObject;
 import crazypants.enderio.conduit.AbstractItemConduit;
 import crazypants.enderio.conduit.IConduit;
+import crazypants.enderio.conduit.IConduitType;
 import crazypants.enderio.conduit.ItemConduitSubtype;
 
 public class ItemItemConduit extends AbstractItemConduit {
@@ -28,7 +29,7 @@ public class ItemItemConduit extends AbstractItemConduit {
   }
 
   @Override
-  public Class<? extends IConduit> getBaseConduitType() {
+  public Class<? extends IConduitType> getBaseConduitType() {
     return IItemConduit.class;
   }
 
