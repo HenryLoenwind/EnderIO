@@ -1,5 +1,8 @@
 package crazypants.util;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.Log;
 
@@ -12,13 +15,14 @@ public class TEUtil {
   private TEUtil() {
   }
 
-  public static <T extends TileEntity> T getTileEntity(Class<T> clazz, IBlockAccess world, BlockCoord bc) {
+  public static @Nonnull <T extends TileEntity> T getTileEntity(Class<T> clazz, IBlockAccess world, BlockCoord bc) {
     return getTileEntity(clazz, world, bc.x, bc.y, bc.z);
   }
 
-  public static <T extends TileEntity> T getTileEntity(Class<T> clazz, IBlockAccess world, int x, int y, int z) {
+  public static @Nonnull <T extends TileEntity> T getTileEntity(Class<T> clazz, IBlockAccess world, int x, int y, int z) {
+    @Nullable
     TileEntity te = world.getTileEntity(x, y, z);
-    if (clazz.isInstance(te)) {
+    if (clazz.isInstance(te) && te != null) {
       return (T) te;
     }
     Log.error("Fatal error accessing world. The TileEntity at " + x + "/" + y + "/" + z + " was supposed to be a " + clazz
@@ -29,6 +33,7 @@ public class TEUtil {
           for (int z0 = z - 2; z0 <= z + 2; z0++) {
             Block block = world.getBlock(x0, y0, z0);
             int blockMetadata = world.getBlockMetadata(x0, y0, z0);
+            @Nullable
             TileEntity tileEntity = world.getTileEntity(x0, y0, z0);
             if (tileEntity == null) {
               Log.info(" Block at " + x0 + "/" + y0 + "/" + z0 + " is " + block.getUnlocalizedName() + "/" + block.getClass()
@@ -45,10 +50,18 @@ public class TEUtil {
         }
       }
     }
-    Log.info("Trying to recover by invalidating the TileEntity.");
-    te.invalidate();
+    if (te == null) {
+      Log.info("Trying to recover by retrying.");
+    } else {
+      Log.info("Trying to recover by invalidating the TileEntity.");
+      te.invalidate();
+    }
+    @Nullable
     TileEntity te2 = world.getTileEntity(x, y, z);
-    if (te == te2) {
+    if (te2 == null) {
+      Log.error("Recovery failed. Got a null TileEntity.");
+      throw new RuntimeException("See logfile");
+    } else if (te == te2) {
       Log.error("Invalidating the TileEntity did not work, the wrong TileEntity did not go away.");
       throw new RuntimeException("See logfile");
     } else if (clazz.isInstance(te2)) {
