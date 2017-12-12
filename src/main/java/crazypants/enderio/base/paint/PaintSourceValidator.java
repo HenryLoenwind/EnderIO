@@ -5,15 +5,14 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.item.ItemStack;
-
 import com.enderio.core.common.util.ItemUtil;
 
 import crazypants.enderio.base.config.Config;
 import crazypants.enderio.base.recipe.RecipeInput;
 import crazypants.enderio.util.Prep;
+import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.item.ItemStack;
 
 public class PaintSourceValidator {
 
@@ -51,7 +50,7 @@ public class PaintSourceValidator {
   }
 
   public void addToWhitelist(@Nonnull ItemStack input) {
-    addToWhitelist(new RecipeInput(input, true));
+    addToWhitelist(new RecipeInput(input));
   }
 
   public void addToWhitelist(RecipeInput input) {
@@ -59,7 +58,7 @@ public class PaintSourceValidator {
   }
 
   public void addToBlacklist(@Nonnull ItemStack input) {
-    addToBlacklist(new RecipeInput(input, true));
+    addToBlacklist(new RecipeInput(input));
   }
 
   public void addToBlacklist(RecipeInput input) {

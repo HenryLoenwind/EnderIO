@@ -450,7 +450,7 @@ public class RecipeConfigParser extends DefaultHandler {
       Log.debug("Could not create an item stack from the attributes " + toString(attributes));
       return null;
     }
-    return new RecipeInput(res, useMeta, getFloatValue(AT_MULTIPLIER, attributes, 1), getIntValue(AT_SLOT, attributes, -1));
+    return new RecipeInput(res, getFloatValue(AT_MULTIPLIER, attributes, 1), getIntValue(AT_SLOT, attributes, -1));
   }
 
   public static boolean getBooleanValue(String qName, Attributes attributes, boolean def) {

@@ -180,7 +180,7 @@ public class SagMillRecipeManager {
     if (Prep.isInvalid(input) || output == null) {
       return;
     }
-    addRecipe(new Recipe(new RecipeInput(input, false), energyCost, RecipeBonusType.MULTIPLY_OUTPUT, output));
+    addRecipe(new Recipe(new RecipeInput(input), energyCost, RecipeBonusType.MULTIPLY_OUTPUT, output));
   }
 
   public void addRecipe(@Nonnull Recipe recipe) {

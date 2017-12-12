@@ -21,7 +21,7 @@ public class LangParser {
     try {
 
       int langs = 0, vals = 0;
-      File f = new File("../EnderIO/resources/assets/enderio/lang/");
+      File f = new File("C:/github/EnderIO_110/resources/assets/enderio/lang/");
 
       File[] files = f.listFiles();
 

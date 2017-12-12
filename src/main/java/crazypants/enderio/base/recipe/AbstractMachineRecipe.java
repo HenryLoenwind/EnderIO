@@ -74,24 +74,24 @@ public abstract class AbstractMachineRecipe implements IMachineRecipe {
   protected boolean consume(@Nonnull RecipeInput required, @Nonnull MachineRecipeInput available, @Nonnull List<MachineRecipeInput> consumedInputs) {
 
     if (required.isInput(available.fluid)) {
-      consumedInputs.add(new MachineRecipeInput(available.slotNumber, required.getFluidInput().copy()));
+      consumedInputs.add(new MachineRecipeInput(available.slotNumber, required.getFluidInput()));
       return true;
     }
 
     if (required.isInput(available.item) && (required.getSlotNumber() == -1 || required.getSlotNumber() == available.slotNumber)) {
 
       ItemStack availableStack = available.item;
-      ItemStack requiredStack = required.getInput();
 
-      ItemStack consumedStack = requiredStack.copy();
-      consumedStack.setCount(Math.min(requiredStack.getCount(), availableStack.getCount()));
+      int amount = Math.min(required.getAmount(), availableStack.getCount());
 
-      requiredStack.shrink(consumedStack.getCount());
-      availableStack.shrink(consumedStack.getCount());
+      ItemStack consumedStack = required.getInput();
+      consumedStack.setCount(amount);
+      required.shrinkAmount(amount);
+      availableStack.shrink(amount);
 
       consumedInputs.add(new MachineRecipeInput(available.slotNumber, consumedStack));
 
-      if (Prep.isInvalid(requiredStack)) {
+      if (!required.hasAmount()) {
         // Fully met the requirement
         return true;
       }

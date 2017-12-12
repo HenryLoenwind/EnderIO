@@ -154,7 +154,6 @@ public abstract class AbstractMachineContainer<E extends AbstractInventoryMachin
     SlotRange range = null;
     for (int i = start; i < end; i++) {
       Slot slotFromInventory = getSlotFromInventory(getInv(), i);
-      if (slotFromInventory != null) {
         int slotNumber = slotFromInventory.slotNumber;
         if (range == null) {
           range = new SlotRange(slotNumber, slotNumber + 1, false);
@@ -164,7 +163,6 @@ public abstract class AbstractMachineContainer<E extends AbstractInventoryMachin
           res.add(range);
           range = new SlotRange(slotNumber, slotNumber + 1, false);
         }
-      }
     }
     if (range != null) {
       res.add(range);

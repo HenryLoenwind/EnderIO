@@ -308,8 +308,8 @@ public class RecipeConfig {
       inputs.add(input);
     }
 
-    public void addInput(@Nonnull ItemStack stack, boolean useMetadata) {
-      inputs.add(new RecipeInput(stack, useMetadata));
+    public void addInput(@Nonnull ItemStack stack) {
+      inputs.add(new RecipeInput(stack));
     }
 
     public void addOutput(@Nonnull RecipeOutput output) {
