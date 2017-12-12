@@ -39,7 +39,7 @@ public class GuiAlloySmelter<T extends TileAlloySmelter> extends GuiInventoryMac
 
     vanillaFurnaceButton = new IIconButton(getFontRenderer(), SMELT_MODE_BUTTON_ID, 0, 0, null, RenderUtil.BLOCK_TEX);
     vanillaFurnaceButton.setSize(BUTTON_SIZE, BUTTON_SIZE);
-    vanillaFurnaceButton.visible = !isSimple;
+    vanillaFurnaceButton.visible = !isSimple && !furnaceInventory.isLimited();
 
     vanillaFurnaceTooltip = new GuiToolTip(new Rectangle(xSize - 5 - BUTTON_SIZE, 62, BUTTON_SIZE, BUTTON_SIZE), (String[]) null);
     vanillaFurnaceTooltip.setIsVisible(!isSimple);
@@ -63,6 +63,7 @@ public class GuiAlloySmelter<T extends TileAlloySmelter> extends GuiInventoryMac
     addToolTip(vanillaFurnaceTooltip);
 
     updateVanillaFurnaceButton();
+    ((ContainerAlloySmelter<?>) inventorySlots).createGhostSlots(getGhostSlotHandler().getGhostSlots());
   }
 
   @Override

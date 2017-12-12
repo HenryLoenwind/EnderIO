@@ -26,6 +26,8 @@ public enum CapacitorKey implements ICapacitorKey.Computable {
   ALLOY_SMELTER_POWER_BUFFER(MachineObject.block_alloy_smelter, CapacitorKeyType.ENERGY_BUFFER, Scaler.Factory.POWER, 100000),
   ALLOY_SMELTER_POWER_USE(MachineObject.block_alloy_smelter, CapacitorKeyType.ENERGY_USE, Scaler.Factory.POWER, 20),
 
+  LIMITED_ALLOY_SMELTER_POWER_USE(MachineObject.block_alloy_smelter, CapacitorKeyType.ENERGY_USE, Scaler.Factory.POWER, 200),
+
   BUFFER_POWER_INTAKE(MachineObject.block_buffer, CapacitorKeyType.ENERGY_INTAKE, Scaler.Factory.POWER, 80),
   BUFFER_POWER_BUFFER(MachineObject.block_buffer, CapacitorKeyType.ENERGY_BUFFER, Scaler.Factory.POWER, 100000),
   BUFFER_POWER_USE(MachineObject.block_buffer, CapacitorKeyType.ENERGY_USE, Scaler.Factory.FIXED_1, 0),

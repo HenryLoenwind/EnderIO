@@ -1,8 +1,12 @@
 package crazypants.enderio.machines.machine.alloy;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.enderio.core.client.gui.widget.GhostBackgroundItemSlot;
+import com.enderio.core.client.gui.widget.GhostSlot;
 import com.enderio.core.common.util.Util;
 
 import crazypants.enderio.base.machine.gui.AbstractMachineContainer;
@@ -76,6 +80,14 @@ public abstract class ContainerAlloySmelter<T extends TileAlloySmelter> extends 
     });
     addSlotToContainer(new SlotSmelter(getInv(), 3, 79, 57));
 
+  }
+
+  public void createGhostSlots(List<GhostSlot> slots) {
+    if (getTe().isLimited()) {
+      slots.add(new GhostBackgroundItemSlot(getTe().getLimit().get(0).getItemStacks(), getSlotFromInventory(0)));
+      slots.add(new GhostBackgroundItemSlot(getTe().getLimit().get(1).getItemStacks(), getSlotFromInventory(1)));
+      slots.add(new GhostBackgroundItemSlot(getTe().getLimit().get(2).getItemStacks(), getSlotFromInventory(2)));
+    }
   }
 
   private class SlotSmelter extends Slot {

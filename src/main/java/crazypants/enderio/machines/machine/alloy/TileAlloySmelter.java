@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.enderio.core.common.util.NNList;
 import com.enderio.core.common.util.NullHelper;
+import com.enderio.core.common.util.stackable.RebuildableThings;
 
 import crazypants.enderio.base.Log;
 import crazypants.enderio.base.capacitor.ICapacitorKey;
@@ -16,9 +17,11 @@ import crazypants.enderio.base.recipe.MachineRecipeRegistry;
 import crazypants.enderio.base.recipe.ManyToOneMachineRecipe;
 import crazypants.enderio.base.recipe.alloysmelter.AlloyRecipeManager;
 import crazypants.enderio.base.recipe.alloysmelter.VanillaSmeltingRecipe;
+import crazypants.enderio.machines.capacitor.CapacitorKey;
 import crazypants.enderio.util.Prep;
 import info.loenwind.autosave.annotations.Storable;
 import info.loenwind.autosave.annotations.Store;
+import info.loenwind.autosave.handlers.endercore.HandleRebuildableThings;
 import net.minecraft.item.ItemStack;
 
 import static crazypants.enderio.machines.capacitor.CapacitorKey.ALLOY_SMELTER_POWER_BUFFER;
@@ -88,6 +91,9 @@ public class TileAlloySmelter extends AbstractPoweredTaskEntity implements IPain
     if (mode == null) {
       mode = Mode.ALL;
     }
+    if (isLimited()) {
+      mode = Mode.ALLOY;
+    }
     if (this.mode != mode) {
       this.mode = mode;
       forceClientUpdate.set();
@@ -123,6 +129,10 @@ public class TileAlloySmelter extends AbstractPoweredTaskEntity implements IPain
   public boolean isMachineItemValidForSlot(int slot, @Nonnull ItemStack itemstack) {
     if (!slotDefinition.isInputSlot(slot)) {
       return false;
+    }
+
+    if (isLimited()) {
+      return getLimit().get(slot).contains(itemstack);
     }
 
     // We will assume anything that is in a slot is valid, so just return whether the new input can be stacked with the current one
@@ -219,6 +229,22 @@ public class TileAlloySmelter extends AbstractPoweredTaskEntity implements IPain
   @Override
   public @Nonnull String getMachineName() {
     return MachineRecipeRegistry.ALLOYSMELTER;
+  }
+
+  @Store(handler = HandleRebuildableThings.HandleRebuildableThingsNNList.class)
+  private @Nonnull NNList<RebuildableThings> limit = new NNList<>();
+
+  public boolean isLimited() {
+    return !limit.isEmpty();
+  }
+
+  public @Nonnull NNList<RebuildableThings> getLimit() {
+    return limit;
+  }
+
+  @Override
+  public int getPowerUsePerTick() {
+    return isLimited() ? CapacitorKey.LIMITED_ALLOY_SMELTER_POWER_USE.get(getCapacitorData()) : super.getPowerUsePerTick();
   }
 
 }
