@@ -63,7 +63,7 @@ public class Output extends AbstractConditional {
   }
 
   public @Nonnull ItemStack getItemStack() {
-    ItemStack itemStack = item.getItemStack().copy();
+    ItemStack itemStack = item.getThing().getLeadItemStacks().get(0).copy();
     itemStack.setCount(amount);
     if (tag != null) {
       itemStack.setTagCompound(tag);
